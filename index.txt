@@ -168,7 +168,7 @@
             -moz-osx-font-smoothing: grayscale;
         }
         /* Nascondi status-indicator se l'app è in iframe */
-        html[data-embedded="true"] .status-indicator { display: none !important; }
+        body[data-embedded="true"] .status-indicator { display: none !important; }
         
         .container { 
             max-width: 1200px; 
