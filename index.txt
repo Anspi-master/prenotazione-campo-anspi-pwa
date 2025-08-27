@@ -167,6 +167,8 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+        /* Nascondi status-indicator se l'app è in iframe */
+        html[data-embedded="true"] .status-indicator { display: none !important; }
         
         .container { 
             max-width: 1200px; 
@@ -260,7 +262,7 @@
     
     <?!= include('style'); ?>
 </head>
-<body>
+<body data-embedded="<?!= (this && this.queryString && this.queryString.embedded) ? 'true' : (this && this.baseUrl ? ("" + this.baseUrl).indexOf('page=sw') !== -1 ? 'true' : 'false' : 'false') ?>">
     <!-- Loading screen per mobile -->
     <div class="mobile-loading" id="mobileLoading">
         <div class="mobile-loading-spinner"></div>
