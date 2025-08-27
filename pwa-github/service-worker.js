@@ -1,5 +1,5 @@
 // SW minimal per GitHub Pages shell PWA
-const CACHE_NAME = 'campo-anspi-shell-v1';
+const CACHE_NAME = 'campo-anspi-shell-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -24,12 +24,17 @@ self.addEventListener('activate', event => {
   );
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // Cache-first per la shell, lasciamo pass-through per l'iframe (dominio differente)
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   const isSameOrigin = url.origin === self.location.origin;
   if (!isSameOrigin) {
-    // Lascia passare le richieste all'Apps Script per evitare CORS/opaque
     return;
   }
   event.respondWith(
