@@ -1,0 +1,854 @@
+// =====================
+// 2. FUNZIONI HELPER E UTILITY
+// =====================
+
+/**
+ * Funzione centralizzata per gestire la cache di qualsiasi dato
+ * @param {string} key - Chiave univoca della cache
+ * @param {function} fallbackFn - Funzione che calcola il dato se non presente in cache
+ * @param {number} ttl - Tempo di vita della cache in secondi (default 600)
+ * @returns {*} Il dato richiesto, dalla cache o calcolato
+ */
+function getOrSetCache(key, fallbackFn, ttl = 600) {
+  const cache = CacheService.getScriptCache();
+  let cached = cache.get(key);
+  if (cached !== null) {
+    try {
+      return JSON.parse(cached);
+    } catch (e) {
+      debugLog('Errore parsing cache per ' + key + ', ricalcolo.');
+    }
+  }
+  // Calcola il dato e salva in cache
+  const value = fallbackFn();
+  try {
+    cache.put(key, JSON.stringify(value), ttl);
+  } catch (e) {
+    debugLog('Errore salvataggio cache per ' + key + ': ' + e.message);
+  }
+  return value;
+}
+function getSheet() {
+  try {
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) {
+      throw new Error(`Foglio "${SHEET_NAME}" non trovato.`);
+    }
+    return sheet;
+  } catch (error) {
+    debugLog(`❌ Errore in getSheet: ${error.message}`);
+    throw error;
+  }
+}
+
+function formatDateValue(cellValue) {
+  if (cellValue instanceof Date) {
+    const year = cellValue.getFullYear();
+    const month = String(cellValue.getMonth() + 1).padStart(2, '0');
+    const day = String(cellValue.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  } else if (typeof cellValue === 'string') {
+    if (cellValue.includes('-') && cellValue.length >= 10) {
+      return cellValue.split('T')[0];
+    } else {
+      const parsedDate = new Date(cellValue);
+      if (!isNaN(parsedDate.getTime())) {
+        const year = parsedDate.getFullYear();
+        const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(parsedDate.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+    }
+  }
+  return String(cellValue);
+}
+
+function getCampoName(campo) {
+  const names = { 'calcetto': '⚽ Calcetto', 'pallavolo': '🏐 Pallavolo', 'entrambi': '🏟️ Entrambi i Campi', 'admin-managed': '🔧 Da Definire' };
+  return names[campo] || campo;
+}
+
+function getEventName(evento) {
+  const names = { 'calcetto': '⚽ Calcetto', 'pallavolo': '🏐 Pallavolo', 'compleanno': '🎉 Compleanno', 'eventi': '🎪 Evento Straordinario' };
+  return names[evento] || evento;
+}
+
+function getDayName(dayIndex) {
+  const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+  return days[dayIndex] || 'Sconosciuto';
+}
+
+// Refactor getBookings per usare la cache centralizzata
+function getBookings() {
+  return getOrSetCache('all_bookings', () => {
+    const sheet = getSheet();
+    const range = sheet.getDataRange();
+    const values = range.getValues();
+    if (values.length < 2) return [];
+    const headers = values[0].map(h => h ? h.toLowerCase().trim().replace(/\s/g, '') : '');
+    const dataRows = values.slice(1);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return dataRows.map(row => {
+      let booking = {};
+      headers.forEach((header, i) => {
+        if (header && i < row.length) {
+          const cellValue = row[i];
+          if (header === 'data' && cellValue) {
+            booking[header] = formatDateValue(cellValue);
+          } else if (cellValue instanceof Date) {
+            booking[header] = cellValue.toISOString();
+          } else {
+            booking[header] = cellValue;
+          }
+        }
+      });
+      return booking;
+    }).filter(b => {
+      if (!b.data) return false;
+      const eventDate = new Date(b.data);
+      eventDate.setHours(0, 0, 0, 0);
+      return eventDate >= today;
+    });
+  }, 600); // 10 minuti
+}
+
+function getBookingsForCalendar() {
+  debugLog('🚀 getBookingsForCalendar: Caricamento VELOCE');
+  
+  try {
+    // ✅ OTTIMIZZAZIONE: Cache più aggressiva (10 minuti)
+    const cache = CacheService.getScriptCache();
+    const cacheKey = 'calendar_bookings_fast';
+    let cachedData = cache.get(cacheKey);
+    
+    if (cachedData) {
+      const bookings = JSON.parse(cachedData);
+      debugLog(`⚡ CACHE HIT: ${bookings.length} eventi da cache veloce`);
+      return bookings;
+    }
+    
+    debugLog('📊 CACHE MISS: Carico dal foglio con ottimizzazioni');
+    
+    const sheet = getSheet();
+    
+    // ✅ OTTIMIZZAZIONE: Leggi solo le colonne necessarie per i conflitti
+    const lastRow = sheet.getLastRow();
+    if (lastRow <= 1) {
+      cache.put(cacheKey, JSON.stringify([]), 600); // 10 minuti
+      return [];
+    }
+    
+    // ✅ OTTIMIZZAZIONE: Leggi solo dati essenziali (non tutte le colonne)
+    const range = sheet.getRange(2, 1, lastRow - 1, 15); // Prime 15 colonne
+    const values = range.getValues();
+    
+    const headers = ['id', 'timestamp', 'nome', 'email', 'telefono', 'evento', 'campo', 'data', 'ora', 'note', 'ricorrente', 'stato', 'remindersent', 'adminactionby', 'archiviato'];
+    
+    // ✅ OTTIMIZZAZIONE: Filtra e mappa in un solo passaggio
+    const bookings = values
+      .filter(row => row[0] && row[0].toString().trim() !== '') // Solo righe con ID
+      .map(row => {
+        const booking = {};
+        headers.forEach((header, i) => {
+          if (i < row.length) {
+            const cellValue = row[i];
+            if (header === 'data' && cellValue) {
+              booking[header] = formatDateValue(cellValue);
+            } else if (cellValue instanceof Date) { 
+              booking[header] = cellValue.toISOString(); 
+            } else { 
+              booking[header] = cellValue; 
+            }
+          }
+        });
+        return booking;
+      })
+      .filter(b => b.data && b.data.toString().trim() !== ''); // Solo eventi con data valida
+    
+    // ✅ OTTIMIZZAZIONE: Cache per 10 minuti (più aggressiva)
+    cache.put(cacheKey, JSON.stringify(bookings), 600);
+    
+    debugLog(`⚡ Eventi caricati e cachati: ${bookings.length}`);
+    return bookings;
+    
+  } catch (error) {
+    debugLog(`❌ Errore caricamento veloce: ${error.message}`);
+    return [];
+  }
+}
+
+// Refactor getArchivedBookings per usare la cache centralizzata
+function getArchivedBookings() {
+  return getOrSetCache('archived_bookings', () => {
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    const archiveSheet = ss.getSheetByName(ARCHIVE_SHEET_NAME);
+    if (!archiveSheet) return [];
+    const range = archiveSheet.getDataRange();
+    const values = range.getValues();
+    if (values.length < 2) return [];
+    const headers = values[0].map(h => h ? h.toLowerCase().trim().replace(/\s/g, '') : '');
+    const dataRows = values.slice(1);
+    return dataRows.map(row => {
+      let booking = {};
+      headers.forEach((header, i) => {
+        if (header && i < row.length) {
+          const cellValue = row[i];
+          if (header === 'data' && cellValue) {
+            booking[header] = formatDateValue(cellValue);
+          } else if (cellValue instanceof Date) {
+            booking[header] = cellValue.toISOString();
+          } else {
+            booking[header] = cellValue;
+          }
+        }
+      });
+      return booking;
+    }).filter(b => b.id && b.id.toString().trim() !== '');
+  }, 600); // 10 minuti
+}
+
+// =====================
+// FUNZIONE CENTRALIZZATA CONTROLLO CONFLITTI PRENOTAZIONE
+// =====================
+function checkBookingConflicts(newBookingData, allEventsOnDate) {
+  const newBookingStart = new Date(`${newBookingData.data.split('T')[0]}T${newBookingData.ora}:00`);
+  const newBookingDuration = DURATION_MAP[newBookingData.evento] || 60;
+  const newBookingEnd = new Date(newBookingStart.getTime() + newBookingDuration * 60000);
+
+  const isExclusiveEvent = (evento) => evento === 'compleanno' || evento === 'eventi';
+
+  const getPhysicalFields = (booking) => {
+    if (isExclusiveEvent(booking.evento)) return ['calcetto', 'pallavolo', 'exclusive'];
+    if (booking.campo === 'entrambi') return ['calcetto', 'pallavolo'];
+    if (booking.campo === 'calcetto') return ['calcetto'];
+    if (booking.campo === 'pallavolo') return ['pallavolo'];
+    return [];
+  };
+
+  const newBookingFields = getPhysicalFields(newBookingData);
+
+  for (let i = 0; i < allEventsOnDate.length; i++) {
+    const existingEvent = allEventsOnDate[i];
+    if (newBookingData.id && existingEvent.id === newBookingData.id) continue;
+    if (existingEvent.stato === 'rifiutato' || existingEvent.stato === 'in_attesa') continue;
+
+    const existingStart = new Date(`${existingEvent.data.split('T')[0]}T${existingEvent.ora}:00`);
+    const existingDuration = DURATION_MAP[existingEvent.evento] || 60;
+    const existingEnd = new Date(existingStart.getTime() + existingDuration * 60000);
+
+    if (newBookingStart >= existingEnd || newBookingEnd <= existingStart) continue;
+
+    if (isExclusiveEvent(newBookingData.evento) || isExclusiveEvent(existingEvent.evento)) {
+      return {
+        type: 'exclusive_conflict',
+        conflictEvent: existingEvent,
+        message: `Il ${newBookingData.data.split('T')[0]} è già prenotato per un evento speciale.`
+      };
+    }
+
+    const existingBookingFields = getPhysicalFields(existingEvent);
+    if (newBookingFields.some(field => existingBookingFields.includes(field))) {
+      return {
+        type: 'field_conflict',
+        conflictEvent: existingEvent
+      };
+    }
+  }
+  return null; // Nessun conflitto
+}
+
+// =====================
+// 5. FUNZIONI CONFLITTI - AGGIORNATE
+// =====================
+function getAllEventsForDate(dateString, allBookings) {
+  debugLog(`🔍 getAllEventsForDate cercando data: "${dateString}"`);
+  
+  // ✅ NUOVO: Solo eventi fisicamente presenti nel foglio
+  const eventsForDay = allBookings.filter(b => {
+    const bookingDatePart = b.data ? b.data.split('T')[0] : '';
+    return bookingDatePart === dateString;
+  });
+  
+  debugLog(`📊 Eventi fisici trovati per ${dateString}: ${eventsForDay.length}`);
+  
+  // Filtro per mostrare solo eventi approvati o senza stato
+  return eventsForDay.filter(event => event.stato !== 'in_attesa' && event.stato !== 'rifiutato');
+}
+
+function formatDateForEmail(dateString) {
+  try {
+    const cleanDate = dateString.includes('T') ? dateString.split('T')[0] : dateString;
+    const date = new Date(cleanDate + 'T00:00:00');
+    return date.toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  } catch (e) { return dateString; }
+}
+
+// Refactor getItalianHolidays per usare la cache centralizzata (TTL 1 giorno)
+function getItalianHolidays(year) {
+  return getOrSetCache('holidays_' + year, () => {
+    const holidays = ITALIAN_HOLIDAYS.map(holiday => `${year}-${holiday}`);
+    // Calcolo Pasqua e Pasquetta
+    const a = year % 19, b = year % 4, c = year % 7;
+    const k = Math.floor(year / 100), p = Math.floor((13 + 8 * k) / 25), q = Math.floor(k / 4);
+    const M = (15 - p + k - q) % 30, N = (4 + k - q) % 7;
+    const d = (19 * a + M) % 30, e = (2 * b + 4 * c + 6 * d + N) % 7;
+    let day = 22 + d + e;
+    let month = 3;
+    if (day > 31) { day = day - 31; month = 4; }
+    const easterSunday = new Date(year, month - 1, day);
+    const easterMonday = new Date(easterSunday);
+    easterMonday.setDate(easterSunday.getDate() + 1);
+    const pasquettaYear = easterMonday.getFullYear();
+    const pasquettaMonth = String(easterMonday.getMonth() + 1).padStart(2, '0');
+    const pasquettaDay = String(easterMonday.getDate()).padStart(2, '0');
+    holidays.push(`${pasquettaYear}-${pasquettaMonth}-${pasquettaDay}`);
+    return holidays;
+  }, 86400); // 1 giorno
+}
+
+// =====================
+// 10. FUNZIONI UTILITY E VALIDAZIONI
+// =====================
+function isBookingBlocked(bookingDateTime) {
+  const year = bookingDateTime.getFullYear();
+  const dateString = Utilities.formatDate(bookingDateTime, "GMT", "yyyy-MM-dd");
+  const hour = bookingDateTime.getHours();
+  
+  // Controllo orari di chiusura
+  if (hour >= OPENING_HOURS.lunchStart && hour < OPENING_HOURS.lunchEnd) return true;
+  if (hour < OPENING_HOURS.start || hour >= OPENING_HOURS.end) return true;
+  
+  // Controllo domenica
+  if (bookingDateTime.getDay() === 0) return true;
+  
+  // Controllo festività
+  const holidays = getItalianHolidays(year);
+  if (holidays.includes(dateString)) return true;
+  
+  return false;
+}
+
+// SOSTITUISCO LA VECCHIA FUNZIONE CON LA NUOVA LOGICA MIGLIORATA
+function generateTimeSuggestions(newBooking, allEventsOnDate, conflictEvent) {
+  const newBookingDuration = DURATION_MAP[newBooking.evento] || 60;
+  
+  const conflictStart = new Date(`${conflictEvent.data.split('T')[0]}T${conflictEvent.ora}:00`);
+  const conflictDuration = DURATION_MAP[conflictEvent.evento] || 60;
+  const conflictEnd = new Date(conflictStart.getTime() + conflictDuration * 60000);
+  
+  // Suggerimento prima del conflitto
+  const suggestionBefore = new Date(conflictStart.getTime() - newBookingDuration * 60000);
+  
+  // Suggerimento dopo il conflitto
+  const suggestionAfter = new Date(conflictEnd.getTime());
+  
+  const spreadsheetTimeZone = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const formatTime = (date) => Utilities.formatDate(date, spreadsheetTimeZone, "HH:mm");
+  
+  // Verifica se gli slot sono liberi
+  const isSlotFree = (slotStart) => {
+    const slotEnd = new Date(slotStart.getTime() + newBookingDuration * 60000);
+    
+    for (const checkEvent of allEventsOnDate) {
+      if (checkEvent.id === conflictEvent.id) continue;
+      if (newBooking.id && checkEvent.id === newBooking.id) continue;
+      if (checkEvent.stato === 'rifiutato' || checkEvent.stato === 'in_attesa') continue;
+      
+      const checkStart = new Date(`${checkEvent.data.split('T')[0]}T${checkEvent.ora}:00`);
+      const checkDuration = DURATION_MAP[checkEvent.evento] || 60;
+      const checkEnd = new Date(checkStart.getTime() + checkDuration * 60000);
+      
+      const slotTimeOverlap = (slotStart < checkEnd) && (slotEnd > checkStart);
+      if (slotTimeOverlap) {
+        // Verifica sovrapposizione campi
+        const isExclusiveEvent = (evento) => evento === 'compleanno' || evento === 'eventi';
+        const getPhysicalFields = (booking) => {
+          if (isExclusiveEvent(booking.evento)) return ['calcetto', 'pallavolo', 'exclusive'];
+          if (booking.campo === 'entrambi') return ['calcetto', 'pallavolo'];
+          if (booking.campo === 'calcetto') return ['calcetto'];
+          if (booking.campo === 'pallavolo') return ['pallavolo'];
+          return [];
+        };
+        
+        const newBookingFields = getPhysicalFields(newBooking);
+        const checkEventFields = getPhysicalFields(checkEvent);
+        
+        if (newBookingFields.some(field => checkEventFields.includes(field))) {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+  
+  // Verifica orari validi usando costanti
+  const isValidTime = (date) => {
+    const hour = date.getHours();
+    // Solo l'inizio deve essere >= apertura
+    return hour >= OPENING_HOURS.start;
+  };
+  
+  const beforeValid = isValidTime(suggestionBefore) && isSlotFree(suggestionBefore) && !isBookingBlocked(suggestionBefore);
+  const afterValid = isValidTime(suggestionAfter) && isSlotFree(suggestionAfter) && !isBookingBlocked(suggestionAfter);
+  
+  debugLog(`💡 Suggerimenti: prima=${beforeValid ? formatTime(suggestionBefore) : 'non valido'}, dopo=${afterValid ? formatTime(suggestionAfter) : 'non valido'}`);
+  
+  return { 
+    before: beforeValid ? formatTime(suggestionBefore) : null, 
+    after: afterValid ? formatTime(suggestionAfter) : null 
+  };
+}
+
+// =====================
+// 12. FUNZIONI SETUP E TRIGGER - CONSOLIDATE
+// =====================
+function setupSheets() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  // Setup Foglio Prenotazioni
+  let prenotazioniSheet = ss.getSheetByName(SHEET_NAME);
+  if (!prenotazioniSheet) {
+    prenotazioniSheet = ss.insertSheet(SHEET_NAME, 0);
+  }
+  const headers = ['ID', 'Timestamp', 'Nome', 'Email', 'Telefono', 'Evento', 'Campo', 'Data', 'Ora', 'Note', 'Ricorrente', 'Stato', 'ReminderSent', 'AdminActionBy', 'Archiviato'];
+  prenotazioniSheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight("bold");
+  prenotazioniSheet.setFrozenRows(1);
+  // Setup Foglio Admin
+  let adminSheet = ss.getSheetByName(ADMIN_SHEET_NAME);
+  if (!adminSheet) {
+    adminSheet = ss.insertSheet(ADMIN_SHEET_NAME, 1);
+    const adminHeaders = ['Email', 'PasswordHash'];
+    adminSheet.getRange(1, 1, 1, adminHeaders.length).setValues([adminHeaders]).setFontWeight("bold");
+    adminSheet.setFrozenRows(1);
+  }
+  // Setup Foglio Reset Password
+  let resetSheet = ss.getSheetByName("PasswordResets");
+  if (!resetSheet) {
+    resetSheet = ss.insertSheet("PasswordResets", 2);
+    const resetHeaders = ['Email', 'Token', 'Expiration'];
+    resetSheet.getRange(1, 1, 1, resetHeaders.length).setValues([resetHeaders]).setFontWeight("bold");
+    resetSheet.setFrozenRows(1);
+  }
+  // Setup Foglio Archivio
+  let archiveSheet = ss.getSheetByName(ARCHIVE_SHEET_NAME);
+  if (!archiveSheet) {
+    archiveSheet = ss.insertSheet(ARCHIVE_SHEET_NAME, 3);
+    archiveSheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight("bold");
+    archiveSheet.setFrozenRows(1);
+  }
+  SpreadsheetApp.flush();
+  return { status: 'ok', message: 'Verifica setup completata.' };
+}
+
+function setupEventNotifications() {
+  try {
+    // Rimuovi trigger esistenti per evitare duplicati
+    const triggers = ScriptApp.getProjectTriggers();
+    let deletedCount = 0;
+    
+    for (const trigger of triggers) {
+      if (trigger.getHandlerFunction() === 'checkUpcomingEventsAndNotify' || 
+          trigger.getHandlerFunction() === 'sendDailySummaryToAdmin') {
+        ScriptApp.deleteTrigger(trigger);
+        deletedCount++;
+      }
+    }
+    
+    debugLog(`🗑️ Rimossi ${deletedCount} trigger esistenti`);
+    
+    // Crea nuovi trigger (escludo checkAndGenerateRecurringEvents che ha il suo setup dedicato)
+    ScriptApp.newTrigger('checkUpcomingEventsAndNotify').timeBased().everyMinutes(30).create();
+    ScriptApp.newTrigger('sendDailySummaryToAdmin').timeBased().everyDays(1).atHour(7).create();
+    
+    debugLog('✅ Sistema notifiche eventi attivato!');
+    
+    return {
+      status: 'ok',
+      message: 'Sistema di notifiche attivato con successo!',
+      data: {
+        triggersCreated: 2,
+        triggersDeleted: deletedCount,
+        schedule: {
+          dailySummary: 'Ogni giorno alle 7:00',
+          eventReminders: 'Ogni 30 minuti'
+        }
+      }
+    };
+    
+  } catch (error) {
+    debugLog(`❌ Errore setup notifiche: ${error.message}`);
+    return {
+      status: 'error',
+      message: `Errore attivazione notifiche: ${error.message}`
+    };
+  }
+}
+
+// ✅ FUNZIONE CONSOLIDATA: Gestisce sia archiviazione che ricorrenze
+function createDailyArchiveTrigger() {
+  try {
+    deleteArchiveTriggers();
+    ScriptApp.newTrigger('checkAndGenerateRecurringEvents').timeBased().everyDays(1).atHour(0).create();
+    debugLog('✅ Trigger giornaliero consolidato creato per mezzanotte');
+    return { status: 'ok', message: 'Trigger consolidato creato con successo' };
+  } catch (error) {
+    debugLog(`❌ Errore creazione trigger: ${error.message}`);
+    return { status: 'error', message: `Errore: ${error.message}` };
+  }
+}
+
+function deleteArchiveTriggers() {
+  try {
+    const triggers = ScriptApp.getProjectTriggers();
+    let deletedCount = 0;
+    for (const trigger of triggers) {
+      if (trigger.getHandlerFunction() === 'checkAndGenerateRecurringEvents') {
+        ScriptApp.deleteTrigger(trigger);
+        deletedCount++;
+      }
+    }
+    debugLog(`🗑️ Rimossi ${deletedCount} trigger di archiviazione`);
+    return { status: 'ok', deletedCount: deletedCount };
+  } catch (error) {
+    debugLog(`❌ Errore rimozione trigger: ${error.message}`);
+    return { status: 'error', message: `Errore: ${error.message}` };
+  }
+}
+
+// ✅ NUOVA FUNZIONE: Disattiva tutti i trigger di notifica
+function disableAllNotificationTriggers() {
+  try {
+    const triggers = ScriptApp.getProjectTriggers();
+    let deletedCount = 0;
+    const deletedTriggers = [];
+    
+    for (const trigger of triggers) {
+      const handlerFunction = trigger.getHandlerFunction();
+      if (handlerFunction === 'checkUpcomingEventsAndNotify' || 
+          handlerFunction === 'sendDailySummaryToAdmin' ||
+          handlerFunction === 'checkAndGenerateRecurringEvents') {
+        ScriptApp.deleteTrigger(trigger);
+        deletedCount++;
+        deletedTriggers.push(handlerFunction);
+      }
+    }
+    
+    debugLog(`🗑️ Rimossi ${deletedCount} trigger di notifica: ${deletedTriggers.join(', ')}`);
+    
+    return { 
+      status: 'ok', 
+      deletedCount: deletedCount,
+      deletedTriggers: deletedTriggers,
+      message: `Disattivati ${deletedCount} trigger di notifica`
+    };
+    
+  } catch (error) {
+    debugLog(`❌ Errore disattivazione trigger: ${error.message}`);
+    return { 
+      status: 'error', 
+      message: `Errore disattivazione trigger: ${error.message}` 
+    };
+  }
+}
+
+// =====================
+// 14. FUNZIONI DEBUG E UTILITY
+// =====================
+const DEBUG_MODE = true; // Imposta a true per abilitare i log dettagliati
+
+function debugLog(msg) { 
+  if (DEBUG_MODE) {
+    console.log(msg);
+  }
+}
+
+/**
+ * Restituisce lo stato dei trigger installati sullo script (nome, tipo, prossima esecuzione)
+ */
+function getSimpleTriggerStatus() {
+  try {
+    const triggers = ScriptApp.getProjectTriggers();
+    if (!triggers || triggers.length === 0) {
+      return { active: false, message: 'Nessun trigger installato', triggers: [] };
+    }
+    const now = new Date();
+    const triggerList = triggers.map(tr => {
+      let nextRun = null;
+      if (tr.getHandlerFunction && tr.getTriggerSource) {
+        // Solo per trigger time-based
+        if (tr.getTriggerSource() === ScriptApp.TriggerSource.CLOCK) {
+          // Apps Script non espone direttamente la prossima esecuzione, ma possiamo stimare
+          nextRun = '(prossima esecuzione non disponibile)';
+        }
+      }
+      return {
+        functionName: tr.getHandlerFunction(),
+        type: tr.getEventType(),
+        triggerSource: tr.getTriggerSource(),
+        uniqueId: tr.getUniqueId ? tr.getUniqueId() : undefined,
+        nextRun: nextRun
+      };
+    });
+    return {
+      active: true,
+      count: triggers.length,
+      triggers: triggerList
+    };
+  } catch (error) {
+    debugLog('❌ Errore getSimpleTriggerStatus: ' + error.message);
+    return { active: false, error: error.message };
+  }
+}
+
+// Alias per compatibilità: getTriggerInfo richiama getSimpleTriggerStatus
+function getTriggerInfo() {
+  return getSimpleTriggerStatus();
+}
+
+function testSheetConnection() {
+  try {
+    debugLog("🔍 Test connessione semplice...");
+    
+    // ✅ Test di base senza troppi dettagli
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    debugLog(`✅ Spreadsheet aperto: ${ss.getName()}`);
+    
+    // ✅ Test foglio principale
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) {
+      throw new Error(`Foglio "${SHEET_NAME}" non trovato`);
+    }
+    
+    const rows = sheet.getLastRow();
+    const columns = sheet.getLastColumn();
+    
+    debugLog(`✅ Foglio eventi: ${rows} righe, ${columns} colonne`);
+    
+    // ✅ Risposta semplice e sicura
+    return {
+      success: true,
+      message: "Connessione OK",
+      data: {
+        rows: rows,
+        columns: columns
+      }
+    };
+    
+  } catch (error) {
+    debugLog(`❌ Errore test connessione: ${error.message}`);
+    return {
+      success: false,
+      message: `Errore: ${error.message}`
+    };
+  }
+}
+
+// ✅ AGGIUNGI anche questa versione sicura per evitare crash:
+function safeTestConnection() {
+  try {
+    // Test minimo che non può crashare
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    
+    return {
+      success: true,
+      message: "Sistema funzionante",
+      details: {
+        spreadsheet: "OK",
+        mainSheet: sheet ? "OK" : "ERROR"
+      }
+    };
+    
+  } catch (error) {
+    return {
+      success: false,
+      message: "Errore di connessione"
+    };
+  }
+}
+
+// ✅ RIMOSSO DUPLICATO: markDailySummarySent è già definita in NotificationUtils.txt
+// function markDailySummarySent(dateString) {
+//   try {
+//     const cache = CacheService.getScriptCache();
+//     const cacheKey = `daily_summary_${dateString}`;
+//     // Cache per 24 ore (86400 secondi)
+//     cache.put(cacheKey, 'sent', 86400);
+//     
+//     debugLog(`✅ Riepilogo giornaliero marcato come inviato per: ${dateString}`);
+//     
+//     return {
+//       status: 'ok',
+//       message: `Riepilogo marcato per ${dateString}`
+//     };
+//     
+//   } catch (error) {
+//     debugLog(`❌ Errore marcatura riepilogo: ${error.message}`);
+//     return {
+//       status: 'error', 
+//       message: error.message
+//     };
+//   }
+// }
+
+function testMarkDailySummary() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    debugLog(`🧪 Test marcatura riepilogo per oggi: ${today}`);
+    
+    markDailySummarySent(today);
+    
+    const isMarked = checkIfDailySummarySent(today);
+    
+    debugLog(`✅ Riepilogo marcato: ${isMarked}`);
+    
+    return {
+      status: 'ok',
+      data: {
+        date: today,
+        marked: isMarked
+      },
+      message: `Riepilogo test per ${today}: ${isMarked ? 'MARCATO' : 'NON MARCATO'}`
+    };
+    
+  } catch (error) {
+    debugLog(`❌ Errore test riepilogo: ${error.message}`);
+    return {
+      status: 'error',
+      message: error.message
+    };
+  }
+}
+
+// =====================
+// FUNZIONI DI VALIDAZIONE INPUT (validationUtils)
+// =====================
+
+function isValidEmail(email) {
+  const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  return typeof email === 'string' && emailRegex.test(email);
+}
+
+function isValidPhone(phone) {
+  const tel = phone ? phone.replace(/\D/g, '') : '';
+  return tel.length >= 6;
+}
+
+function isValidDate(dateStr) {
+  return !isNaN(new Date(dateStr).getTime());
+}
+
+function isValidTime(timeStr) {
+  return /^\d{2}:\d{2}$/.test(timeStr);
+}
+
+function isValidPassword(password) {
+  return typeof password === 'string' && password.length >= 6;
+}
+
+function isValidEvent(evento) {
+  return ['calcetto', 'pallavolo', 'compleanno', 'eventi'].includes(evento);
+}
+
+function isValidCampo(campo) {
+  return ['calcetto', 'pallavolo', 'entrambi'].includes(campo);
+}
+
+/**
+ * Restituisce la data della settimana successiva rispetto a una data in formato 'YYYY-MM-DD'
+ * @param {string} dateStr
+ * @returns {string} data della settimana dopo, formato 'YYYY-MM-DD'
+ */
+function getNextWeekDateString(dateStr) {
+  try {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    date.setDate(date.getDate() + 7);
+    const nextYear = date.getFullYear();
+    const nextMonth = String(date.getMonth() + 1).padStart(2, '0');
+    const nextDay = String(date.getDate()).padStart(2, '0');
+    return `${nextYear}-${nextMonth}-${nextDay}`;
+  } catch (e) {
+    debugLog('Errore in getNextWeekDateString: ' + e.message);
+    return dateStr;
+  }
+}
+
+/**
+ * Controlla gli eventi che iniziano tra 0 e 30 minuti e invia una notifica Telegram all'admin.
+ * Usa la cache per evitare notifiche duplicate.
+ */
+function checkUpcomingEventsAndNotify() {
+  try {
+    const now = new Date();
+    const in30min = new Date(now.getTime() + 30 * 60 * 1000);
+    const bookings = typeof getBookingsForCalendar === 'function' ? getBookingsForCalendar() : [];
+    const cache = CacheService.getScriptCache();
+
+    bookings.forEach(booking => {
+      if (!booking.data || !booking.ora) return;
+      const eventDateTime = new Date(`${booking.data}T${booking.ora}:00`);
+      if (eventDateTime > now && eventDateTime <= in30min) {
+        // Chiave cache unica per evento
+        const cacheKey = `notified_${booking.id}_${booking.data}_${booking.ora}`;
+        if (cache.get(cacheKey)) return; // Già notificato
+        // Invia notifica a tutti gli admin
+        sendTelegramNotification(
+          `⏰ PROMEMORIA EVENTO IMMINENTE\n\nEvento: ${getEventName(booking.evento)}\nCliente: ${booking.nome}\nOrario: ${booking.ora}\n\n📱 Notifica automatica - Trigger promemoria (ogni 30 min)`,
+          'reminder'
+        );
+        cache.put(cacheKey, '1', 3600); // Evita doppia notifica per 1 ora
+      }
+    });
+  } catch (e) {
+    debugLog('❌ Errore in checkUpcomingEventsAndNotify: ' + e.message);
+  }
+}
+
+// =====================
+// FUNZIONI CACHE
+// =====================
+
+function clearCache() {
+  try {
+    debugLog("🗑️ Inizio pulizia cache completa...");
+    
+    const cache = CacheService.getScriptCache();
+    
+    // Rimuovi tutte le chiavi di cache
+    const keysToRemove = Object.values(CACHE_KEYS);
+    keysToRemove.push('all_bookings'); // Aggiungi la tua chiave esistente
+    
+    cache.removeAll(keysToRemove);
+    
+    debugLog(`✅ Cache pulita: ${keysToRemove.length} chiavi rimosse`);
+    
+    return {
+      success: true,
+      message: "Cache pulita con successo",
+      keysRemoved: keysToRemove
+    };
+    
+  } catch (error) {
+    debugLog(`❌ Errore pulizia cache: ${error.toString()}`);
+    return {
+      success: false,
+      message: `Errore pulizia cache: ${error.toString()}`,
+      error: error.toString()
+    };
+  }
+}
+
+function clearBookingsCache() {
+  try {
+    const cache = CacheService.getScriptCache();
+    cache.remove('all_bookings');
+    debugLog('🗑️ Cache bookings pulita');
+    return { status: 'ok', message: 'Cache pulita con successo' };
+  } catch (error) {
+    debugLog(`❌ Errore pulizia cache: ${error.message}`);
+    return { status: 'error', message: error.message };
+  }
+} 

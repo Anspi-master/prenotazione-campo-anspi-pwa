@@ -1,0 +1,258 @@
+// =====================
+// 3. SISTEMA RICORRENZE INTELLIGENTE - NUOVO!
+// =====================
+
+// ✅ FUNZIONE PER GENERARE ID UNIVOCI
+function generateUniqueId() {
+  const now = new Date();
+  const timeComponent = now.getHours() * 10000 + now.getMinutes() * 100 + now.getSeconds();
+  const randomComponent = Math.floor(Math.random() * 100);
+  const shortId = (timeComponent + randomComponent) % 100000;
+  return `ANSPI-${shortId.toString().padStart(5, '0')}`;
+}
+function checkAndGenerateRecurringEvents() {
+  debugLog('🔄 === CONTROLLO EVENTI RICORRENTI ===');
+  
+  try {
+    const sheet = getSheet();
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0].map(h => h.toLowerCase().trim());
+    
+    const idCol = headers.indexOf('id');
+    const ricorrenteCol = headers.indexOf('ricorrente');
+    const dataCol = headers.indexOf('data');
+    const oraCol = headers.indexOf('ora');
+    const nomeCol = headers.indexOf('nome');
+    const emailCol = headers.indexOf('email');
+    const eventoCol = headers.indexOf('evento');
+    const campoCol = headers.indexOf('campo');
+    
+    const now = new Date();
+    debugLog(`🕐 Data/ora attuale: ${now.toLocaleString('it-IT')}`);
+    
+    let generatedCount = 0;
+    let archivedCount = 0;
+    
+    // ✅ NUOVO: Elabora solo eventi ricorrenti PASSATI (una ricorrenza alla volta)
+    for (let i = data.length - 1; i >= 1; i--) {
+      const row = data[i];
+      if (!row[idCol]) continue;
+      
+      const eventDateTime = new Date(`${formatDateValue(row[dataCol])}T${row[oraCol]}:00`);
+      const isRecurring = row[ricorrenteCol] === true || row[ricorrenteCol] === 'TRUE' || row[ricorrenteCol] === 'true';
+      
+      // ✅ CONTROLLO: Non archiviare eventi creati nelle ultime 24 ore
+      const timestampCol = headers.indexOf('timestamp');
+      const eventTimestamp = row[timestampCol] ? new Date(row[timestampCol]) : null;
+      const isRecentlyCreated = eventTimestamp && (now - eventTimestamp) < 24 * 60 * 60 * 1000; // 24 ore
+      
+      debugLog(`🔍 Controllo evento: ${row[nomeCol]} - ${formatDateValue(row[dataCol])} ${row[oraCol]} - Ricorrente: ${isRecurring} - Recente: ${isRecentlyCreated}`);
+      
+      // ✅ CASO 1: Evento ricorrente PASSATO -> genera UNA ricorrenza successiva
+      if (isRecurring && eventDateTime < now && !row[idCol].includes('-V') && !isRecentlyCreated) {
+        debugLog(`📅 Evento ricorrente passato trovato: ${row[nomeCol]}`);
+        
+        // ✅ Genera solo UNA ricorrenza per la settimana successiva
+        let nextWeekDate = getNextWeekDateString(formatDateValue(row[dataCol]));
+        let attempts = 0;
+        let foundFreeDate = false;
+        
+        debugLog(`🔍 Cerco data libera a partire da: ${nextWeekDate}`);
+        
+        while (attempts < 4) { // Max 4 settimane
+          // Controlla conflitti
+          const allBookings = getBookingsForCalendar();
+          const eventsOnDate = getAllEventsForDate(nextWeekDate, allBookings);
+          
+          const newBookingData = {
+            id: row[idCol],
+            nome: row[nomeCol],
+            email: row[emailCol],
+            evento: row[eventoCol],
+            campo: row[campoCol],
+            data: nextWeekDate,
+            ora: row[oraCol],
+            ricorrente: true
+          };
+          
+          const conflict = checkBookingConflicts(newBookingData, eventsOnDate);
+          
+          if (!conflict) {
+            foundFreeDate = true;
+            debugLog(`✅ Data libera trovata: ${nextWeekDate} (dopo ${attempts} tentativi)`);
+            break;
+          } else {
+            const conflictType = conflict.type === 'exclusive_conflict' ? 'evento esclusivo' : 'sovrapposizione';
+            debugLog(`❌ Conflitto (${conflictType}) il ${nextWeekDate} con ${conflict.conflictEvent.nome}, provo settimana dopo`);
+            nextWeekDate = getNextWeekDateString(nextWeekDate);
+            attempts++;
+          }
+        }
+        
+        if (foundFreeDate) {
+          // ✅ Crea SOLO UNA ricorrenza successiva
+          const newRow = [...row];
+          // ✅ IMPORTANTE: Genera un nuovo ID univoco per la ricorrenza
+          newRow[idCol] = generateUniqueId();
+          newRow[dataCol] = nextWeekDate;
+          newRow[headers.indexOf('timestamp')] = new Date();
+          newRow[headers.indexOf('remindersent')] = '';
+          newRow[headers.indexOf('archiviato')] = '';
+          // ✅ IMPORTANTE: Mantieni il flag ricorrente per la nuova ricorrenza
+          newRow[ricorrenteCol] = true;
+          
+          sheet.appendRow(newRow);
+          generatedCount++;
+          
+          debugLog(`✅ Nuova ricorrenza creata: ${row[nomeCol]} - ${nextWeekDate}`);
+          
+          if (attempts > 0) {
+            debugLog(`📋 NOTA: Evento spostato da ${getNextWeekDateString(formatDateValue(row[dataCol]))} a ${nextWeekDate} per conflitti`);
+          }
+        } else {
+          debugLog(`❌ Impossibile trovare data libera per ${row[nomeCol]} dopo ${attempts} tentativi`);
+        }
+        
+        // ✅ Archivia l'evento passato
+        const archiveSheet = getArchiveSheet();
+        archiveSheet.appendRow(row);
+        sheet.deleteRow(i + 1);
+        archivedCount++;
+        
+        debugLog(`📦 Evento ricorrente passato archiviato: ${row[nomeCol]}`);
+      }
+      
+      // ✅ CASO 2: Eventi non ricorrenti passati -> archivia solo
+      else if (!isRecurring && eventDateTime < now && !row[idCol].includes('-V') && !isRecentlyCreated) {
+        debugLog(`📦 Evento normale passato trovato: ${row[nomeCol]}`);
+        
+        const archiveSheet = getArchiveSheet();
+        archiveSheet.appendRow(row);
+        sheet.deleteRow(i + 1);
+        archivedCount++;
+        
+        debugLog(`📦 Evento normale archiviato: ${row[nomeCol]}`);
+      }
+    }
+    
+    SpreadsheetApp.flush();
+    
+    debugLog(`✅ Processo completato: ${generatedCount} ricorrenze generate, ${archivedCount} eventi archiviati`);
+    
+    // Pulisci cache
+    const cache = CacheService.getScriptCache();
+    cache.remove('all_bookings');
+    
+    return {
+      status: 'ok',
+      data: {
+        generatedCount: generatedCount,
+        archivedCount: archivedCount
+      },
+      message: `${generatedCount} ricorrenze generate, ${archivedCount} eventi archiviati`
+    };
+    
+  } catch (error) {
+    debugLog(`❌ Errore controllo ricorrenze: ${error.message}`);
+    return { status: 'error', message: error.message };
+  }
+}
+
+
+
+// =====================
+// FUNZIONI CENTRALIZZATE RICORRENZE E ARCHIVIAZIONE (recurringUtils)
+// =====================
+
+function archiveOldBookings() {
+  return checkAndGenerateRecurringEvents();
+}
+
+function getArchiveSheet() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  let archiveSheet = ss.getSheetByName(ARCHIVE_SHEET_NAME);
+  if (!archiveSheet) {
+    const mainSheet = ss.getSheetByName(SHEET_NAME);
+    const headers = mainSheet.getRange(1, 1, 1, mainSheet.getLastColumn()).getValues()[0];
+    archiveSheet = ss.insertSheet(ARCHIVE_SHEET_NAME);
+    archiveSheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight("bold");
+    archiveSheet.setFrozenRows(1);
+  }
+  return archiveSheet;
+}
+
+function cleanupDuplicateRecurringEvents() {
+  debugLog('🧹 === PULIZIA EVENTI RICORRENTI DUPLICATI ===');
+  try {
+    const sheet = getSheet();
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0].map(h => h.toLowerCase().trim());
+    const idCol = headers.indexOf('id');
+    const ricorrenteCol = headers.indexOf('ricorrente');
+    const dataCol = headers.indexOf('data');
+    const oraCol = headers.indexOf('ora');
+    const nomeCol = headers.indexOf('nome');
+    const eventoCol = headers.indexOf('evento');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let deletedCount = 0;
+    const recurringEvents = {};
+    
+    // ✅ MIGLIORATO: Controlla anche eventi passati per eliminare duplicati
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      if (!row[idCol]) continue;
+      const isRecurring = row[ricorrenteCol] === true || row[ricorrenteCol] === 'TRUE' || row[ricorrenteCol] === 'true';
+      const eventDate = new Date(formatDateValue(row[dataCol]));
+      eventDate.setHours(0, 0, 0, 0);
+      
+      // ✅ CONTROLLO MIGLIORATO: Includi anche eventi passati per pulizia completa
+      if (isRecurring) {
+        const key = `${row[nomeCol]}_${row[eventoCol]}_${row[oraCol]}`;
+        if (!recurringEvents[key]) {
+          recurringEvents[key] = [];
+        }
+        recurringEvents[key].push({
+          rowIndex: i,
+          date: eventDate,
+          data: row
+        });
+      }
+    }
+    
+    for (const [key, events] of Object.entries(recurringEvents)) {
+      if (events.length > 1) {
+        events.sort((a, b) => a.date - b.date);
+        debugLog(`🔍 Trovati ${events.length} eventi duplicati per: ${key}`);
+        
+        // ✅ MIGLIORATO: Mantieni solo il primo evento (quello originale)
+        for (let j = 1; j < events.length; j++) {
+          const eventToDelete = events[j];
+          debugLog(`🗑️ Eliminando duplicato: ${key} - ${formatDateValue(eventToDelete.data[dataCol])}`);
+          sheet.deleteRow(eventToDelete.rowIndex + 1);
+          deletedCount++;
+        }
+      }
+    }
+    
+    SpreadsheetApp.flush();
+    debugLog(`✅ Pulizia completata: ${deletedCount} eventi duplicati eliminati`);
+    
+    // ✅ Pulisci tutte le cache
+    const cache = CacheService.getScriptCache();
+    cache.remove('all_bookings');
+    cache.remove('calendar_bookings_fast');
+    cache.remove('archived_bookings');
+    
+    return {
+      status: 'ok',
+      data: {
+        deletedCount: deletedCount
+      },
+      message: `${deletedCount} eventi duplicati eliminati`
+    };
+  } catch (error) {
+    debugLog(`❌ Errore pulizia duplicati: ${error.message}`);
+    return { status: 'error', message: error.message };
+  }
+}

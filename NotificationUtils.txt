@@ -1,0 +1,379 @@
+// =====================
+// 7. FUNZIONI NOTIFICHE E TELEGRAM - SEPARAZIONE RESPONSABILITÀ
+// =====================
+function sendTelegramNotification(message, type, options = {}) {
+  if (!TELEGRAM_BOT_TOKEN) return;
+  var emoji = {
+    'new_booking': '📋',
+    'cancellation': '❌',
+    'special_event': '🎉',
+    'reminder': '⏰',
+    'urgent': '🚨',
+    'default': '🔔'
+  };
+  var prefix = emoji[type] || emoji['default'];
+  var text = `${prefix} <b>Campo Don Michele FIORE - ANSPI</b>\n\n${message}\n\n⏰ ${new Date().toLocaleString('it-IT')}`;
+  var url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+  
+  // Invia a tutti gli admin configurati
+  var chatIds = (typeof TELEGRAM_CHAT_IDS !== 'undefined' && Array.isArray(TELEGRAM_CHAT_IDS) && TELEGRAM_CHAT_IDS.length > 0)
+    ? TELEGRAM_CHAT_IDS
+    : [TELEGRAM_MASTER_CHAT_ID];
+  
+  chatIds.forEach(function(chatId) {
+    try {
+      UrlFetchApp.fetch(url, {
+        method: 'post',
+        payload: {
+          chat_id: chatId,
+          text: text,
+          parse_mode: 'HTML',
+          disable_notification: false,
+          disable_web_page_preview: true
+        }
+      });
+      debugLog(`📱 Telegram inviato a ${chatId} con notifica sonora`);
+    } catch (e) {
+      debugLog('❌ Errore Telegram: ' + e.message);
+    }
+  });
+}
+
+// ✅ FUNZIONE DI ALTO LIVELLO: Gestisce la logica di business per notifiche urgenti
+function sendUrgentNotification(message, subject, type, options = {}) {
+  // Invia sempre su Telegram a tutti gli admin configurati
+  sendTelegramNotification(message, type, options);
+  debugLog(`📱 Notifica urgente inviata: ${subject}`);
+}
+
+// ✅ FUNZIONE CONSOLIDATA: Notifiche email unificate
+function sendEmailNotification(to, subject, htmlBody, bcc) {
+  try {
+    MailApp.sendEmail({
+      to: to,
+      bcc: bcc || '',
+      subject: subject,
+      htmlBody: htmlBody
+    });
+    debugLog(`📧 Email inviata a ${to}`);
+  } catch (e) {
+    debugLog(`❌ Errore invio email: ${e.message}`);
+  }
+}
+// AGGIUNGI questa funzione per forzare il test delle notifiche:
+function testTelegramNotification() {
+  try {
+    const testMessage = `🧪 TEST SISTEMA NOTIFICHE\n\nData/ora: ${new Date().toLocaleString('it-IT')}\nSistema Telegram: FUNZIONANTE\n\n📋 Tipi di notifiche attive:\n• 📅 Riepilogo giornaliero (ore 7:00)\n• ⏰ Promemoria eventi (ogni 30 min)\n• 📋 Nuove prenotazioni`;
+    
+    debugLog('🧪 Invio messaggio di test Telegram...');
+    
+    // ✅ CORREZIONE: Invia solo al master admin (già gestito nella funzione principale)
+    sendTelegramNotification(testMessage, 'urgent');
+    
+    debugLog('✅ Test Telegram completato');
+    
+    return {
+      status: 'ok',
+      message: 'Messaggio di test inviato su Telegram (solo master admin)'
+    };
+    
+  } catch (error) {
+    debugLog(`❌ Errore test Telegram: ${error.message}`);
+    return {
+      status: 'error',
+      message: `Errore test Telegram: ${error.message}`
+    };
+  }
+}
+// MIGLIORA la funzione checkIfDailySummarySent:
+function checkIfDailySummarySent(dateString) {
+  try {
+    const cache = CacheService.getScriptCache();
+    const cacheKey = `daily_summary_${dateString}`;
+    const result = cache.get(cacheKey) !== null;
+    
+    debugLog(`🗃️ Cache riepilogo per ${dateString}: ${result ? 'TROVATO' : 'NON TROVATO'}`);
+    
+    return result;
+    
+  } catch (error) {
+    debugLog(`❌ Errore controllo cache riepilogo: ${error.message}`);
+    return false;
+  }
+}
+
+function markDailySummarySent(dateString) {
+  const cache = CacheService.getScriptCache();
+  const cacheKey = `daily_summary_${dateString}`;
+  // Cache per 24 ore
+  cache.put(cacheKey, 'sent', 86400);
+}
+// =====================
+// 8. FUNZIONI EMAIL E TEMPLATE
+// =====================
+function createEmailTemplate(bookingData, stato = '') {
+  const isExclusiveEvent = bookingData.evento === 'compleanno' || bookingData.evento === 'eventi';
+  const eventIcon = { 'calcetto': '⚽', 'pallavolo': '🏐', 'compleanno': '🎉', 'eventi': '🎪' }[bookingData.evento] || '📅';
+  const eventName = getEventName(bookingData.evento);
+  const campoName = getCampoName(bookingData.campo);
+  const statusMessage = isExclusiveEvent && stato === 'in_attesa' ?
+    '<div class="status-badge status-pending">⏳ In Valutazione</div><p>La tua richiesta per evento speciale è stata ricevuta e sarà valutata dall\'amministratore.</p>' : 
+    '<div class="status-badge status-confirmed">✅ Confermata</div><p>La tua prenotazione è stata <strong>confermata</strong> con successo!</p>';
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0"><title>Conferma Prenotazione Campo ANSPI</title><style> * { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 30%, #74b9ff 60%, #81ecec 100%); padding: 20px; line-height: 1.6; } .email-container { max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(116, 185, 255, 0.15); } .header { background: linear-gradient(135deg, #6a89cc 0%, #b8e994 100%); color: white; padding: 40px 30px; text-align: center; } .header h1 { font-size: 28px; margin-bottom: 10px; font-weight: 700; } .header .subtitle { font-size: 16px; opacity: 0.9; } .event-banner { background: ${isExclusiveEvent ? 'linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%)' : 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)'}; color: white; padding: 25px; text-align: center; font-size: 24px; font-weight: 700; } .content { padding: 40px 30px; } .booking-details { background: #f8f9fa; border-radius: 15px; padding: 25px; margin: 20px 0; } .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #e9ecef; } .detail-row:last-child { border-bottom: none; } .detail-label { font-weight: 600; color: #495057; display: flex; align-items: center; gap: 8px; } .detail-value { font-weight: 700; color: #2d3436; text-align: right; } .status-badge { display: inline-block; padding: 8px 16px; border-radius: 25px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 15px 0; } .status-confirmed { background: linear-gradient(135deg, #00cec9 0%, #55efc4 100%); color: white; } .status-pending { background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%); color: white; } .info-box { background: linear-gradient(135deg, rgba(116, 185, 255, 0.1) 0%, rgba(116, 185, 255, 0.05) 100%); border-left: 4px solid #74b9ff; padding: 20px; margin: 25px 0; border-radius: 0 10px 10px 0; } .footer { background: #2d3436; color: white; padding: 30px; text-align: center; } .footer h3 { margin-bottom: 15px; color: #74b9ff; } .contact-info { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 20px; } .contact-item { display: flex; align-items: center; gap: 8px; font-size: 14px; } @media (max-width: 600px) { .email-container { margin: 10px; } .content { padding: 20px; } .header { padding: 30px 20px; } .contact-info { flex-direction: column; gap: 15px; } .detail-row { flex-direction: column; align-items: flex-start; gap: 5px; } .detail-value { text-align: left; } } </style></head><body> <div class="email-container"> <div class="header"><h1>⚽ Campo Don Michele FIORE ⚽</h1><div class="subtitle">🏆 Parrocchia Sant'Agostino - ANSPI 🏆</div></div> <div class="event-banner">${eventIcon} ${eventName} ${isExclusiveEvent ? '<br><small style="font-size: 16px; opacity: 0.9;">Evento Esclusivo</small>' : ''}</div> <div class="content"> <h2 style="color: #2d3436; margin-bottom: 10px;">Ciao ${bookingData.nome}! 👋</h2> ${statusMessage} <div class="booking-details"> <div class="detail-row"><div class="detail-label">🔐 Codice Prenotazione</div><div class="detail-value" style="color: #e17055; font-family: monospace;">${bookingData.id}</div></div> <div class="detail-row"><div class="detail-label">${eventIcon} Evento</div><div class="detail-value">${eventName}</div></div> <div class="detail-row"><div class="detail-label">🏟️ Campo</div><div class="detail-value">${campoName}</div></div> <div class="detail-row"><div class="detail-label">📅 Data</div><div class="detail-value">${formatDateForEmail(bookingData.data)}</div></div> <div class="detail-row"><div class="detail-label">🕐 Orario</div><div class="detail-value">${bookingData.ora}</div></div> ${bookingData.note ? `<div class="detail-row"><div class="detail-label">📝 Note</div><div class="detail-value" style="white-space: pre-wrap; text-align: left;">${bookingData.note}</div></div>` : ''} </div> ${(isExclusiveEvent && stato === 'in_attesa') ? 
+  '<div class="info-box"><strong>ℹ️ Informazioni Importanti</strong><br>Gli eventi speciali richiedono una valutazione amministrativa per garantire la migliore organizzazione. Riceverai conferma definitiva a breve.</div>' : 
+  (bookingData.evento === 'eventi' ? '' : '<div class="info-box"><strong>ℹ️ Cosa Portare</strong><br>• Scarpe adatte al campo<br>• Abbigliamento sportivo<br>• Acqua per idratarsi</div>')
+}
+ <p style="margin-top: 25px; color: #636e72;">${isExclusiveEvent ? 'Per qualsiasi domanda o modifica, contatta l\'amministratore.' : 'Per cancellare la prenotazione, usa il codice sopra nell\'apposita sezione del sito.'}</p> </div> <div class="footer"> <h3>📞 Contatti</h3> <div class="contact-info"> <div class="contact-item"><span>📧</span><span>prenotazionecampoanspi@gmail.com</span></div> <div class="contact-item"><span>📍</span><span>Parrocchia Sant'Agostino - Giovinazzo (BA)</span></div> <div class="contact-item"><span>🕐</span><span>Orari: 8:00 - 22:00</span></div> </div> <p style="margin-top: 20px; font-size: 14px; opacity: 0.8;">Grazie per aver scelto il Campo Don Michele FIORE! ⚽</p> </div> </div> </body></html>`;
+}
+function createStatusUpdateEmailTemplate(bookingData, newStatus, reason = '') {
+  const isApproved = newStatus === 'approvato';
+  const eventIcon = { 'calcetto': '⚽', 'pallavolo': '🏐', 'compleanno': '🎉', 'eventi': '🎪' }[bookingData.evento] || '📅';
+  const eventName = getEventName(bookingData.evento);
+  const campoName = getCampoName(bookingData.campo);
+  
+  const statusConfig = {
+    approvato: {
+      color: '#28a745', banner: 'linear-gradient(135deg, #00cec9 0%, #55efc4 100%)', icon: '✅', title: 'EVENTO APPROVATO!',
+      message: 'Fantastico! Il tuo evento speciale è stato <strong>approvato</strong> e confermato.',
+      info: 'Il tuo evento è ora ufficialmente confermato. Preparati per una giornata speciale!'
+    },
+    rifiutato: {
+      color: '#dc3545', banner: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)', icon: '❌', title: 'EVENTO NON APPROVATO',
+      message: 'Ci dispiace, ma la tua richiesta di evento speciale <strong>non può essere approvata</strong> per la data richiesta.',
+      info: 'Contatta l\'amministratore per discutere alternative o modifiche alla tua richiesta.'
+    }
+  };
+  
+  const config = statusConfig[newStatus];
+  
+  const reasonHtml = reason ? `
+    <div style="background: #fff3f3; border: 1px solid #e17055; border-radius: 10px; padding: 15px; margin: 20px 0; color: #c0392b;">
+        <strong>Motivazione del rifiuto:</strong>
+        <p style="margin-top: 5px; white-space: pre-wrap;"><em>${reason}</em></p>
+    </div>` : '';
+  return `
+    <!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0"><title>Aggiornamento Stato Evento - Campo ANSPI</title>
+        <style>/* Stili CSS per l'email, come nel tuo codice originale */</style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="header"><h1>⚽ Campo Don Michele FIORE ⚽</h1><div class="subtitle">🏆 Parrocchia Sant'Agostino - ANSPI 🏆</div></div>
+            <div class="status-banner"><span class="status-icon">${config.icon}</span>${config.title}</div>
+            <div class="content">
+                <h2 style="color: #2d3436; margin-bottom: 10px;">Ciao ${bookingData.nome}! 👋</h2>
+                <div class="status-message"><strong>${config.icon} Aggiornamento Importante</strong><br>${config.message}</div>
+                ${reasonHtml}
+                <div class="booking-details">
+                    <div class="detail-row"><div class="detail-label">🔐 Codice Prenotazione</div><div class="detail-value" style="color: #e17055; font-family: monospace;">${bookingData.id}</div></div>
+                    <div class="detail-row"><div class="detail-label">${eventIcon} Evento</div><div class="detail-value">${eventName}</div></div>
+                    <div class="detail-row"><div class="detail-label">🏟️ Campo</div><div class="detail-value">${campoName}</div></div>
+                    <div class="detail-row"><div class="detail-label">📅 Data</div><div class="detail-value">${formatDateForEmail(bookingData.data)}</div></div>
+                    <div class="detail-row"><div class="detail-label">🕐 Orario</div><div class="detail-value">${bookingData.ora}</div></div>
+                    <div class="detail-row"><div class="detail-label">📊 Stato</div><div class="detail-value" style="color: ${config.color}; font-weight: bold;">${config.icon} ${newStatus.toUpperCase()}</div></div>
+                    ${bookingData.note ? `<div class="detail-row"><div class="detail-label">📝 Note</div><div class="detail-value" style="white-space: pre-wrap; text-align: left;">${bookingData.note}</div></div>` : ''}
+                </div>
+                <div class="action-box"><strong>💡 ${isApproved ? 'Prossimi Passi' : 'Cosa Fare Ora'}</strong><br>${config.info}${isApproved ? '<br><br>🎯 <strong>Il tuo evento è confermato!</strong> Preparati per una giornata fantastica!' : '<br><br>📞 <strong>Hai domande?</strong> Contatta l\'amministratore per assistenza.'}</div>
+                <p style="margin-top: 25px; color: #636e72; text-align: center;">${isApproved ? 'Ci vediamo al campo per il tuo evento speciale! 🎉' : 'Grazie per la comprensione. Siamo sempre disponibili per aiutarti.'}</p>
+            </div>
+            <div class="footer">
+                <h3>📞 Contatti</h3>
+                <div class="contact-info">
+                    <div class="contact-item"><span>📧</span><span>prenotazionecampoanspi@gmail.com</span></div>
+                    <div class="contact-item"><span>📍</span><span>Parrocchia Sant'Agostino - Giovinazzo (BA)</span></div>
+                    <div class="contact-item"><span>🕐</span><span>Orari: 8:00 - 22:00</span></div>
+                </div>
+                <p style="margin-top: 20px; font-size: 14px; opacity: 0.8;">Grazie per aver scelto il Campo Don Michele FIORE! ⚽</p>
+            </div>
+        </div>
+    </body></html>`;
+}
+// MIGLIORA la funzione sendDailySummaryToAdmin esistente:
+function sendDailySummaryToAdmin() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    debugLog(`📧 Invio riepilogo giornaliero per: ${today}`);
+    
+    // ✅ RIMOSSO CONTROLLO CACHE: Ora invia sempre il riepilogo
+    // Il controllo cache era troppo restrittivo e impediva l'invio
+    
+    debugLog(`📧 Invio riepilogo giornaliero per: ${today}`);
+    
+    // Ottieni eventi di oggi
+    const allBookings = getBookingsForCalendar();
+    const todayEvents = allBookings.filter(b => {
+      const eventDate = b.data ? b.data.split('T')[0] : '';
+      return eventDate === today;
+    });
+    
+    // Prepara messaggio
+    let message = `📅 RIEPILOGO GIORNALIERO - ${formatDateForEmail(today)}\n\n`;
+    
+    if (todayEvents.length === 0) {
+      message += "📭 Nessun evento programmato per oggi";
+    } else {
+      message += `📋 ${todayEvents.length} eventi programmati:\n\n`;
+      todayEvents
+        .sort((a, b) => a.ora.localeCompare(b.ora))
+        .forEach(event => {
+          message += `🕐 ${event.ora} - ${getEventName(event.evento)}\n`;
+          message += `👤 ${event.nome} (${event.telefono || 'N/D'})\n`;
+          if (event.note) message += `📝 ${event.note}\n`;
+          message += `\n`;
+        });
+    }
+    
+    message += `\n📱 Notifica automatica - Trigger giornaliero (ore 7:00)`;
+    
+    // Invia riepilogo (solo al master admin)
+    sendUrgentNotification(message, 'Riepilogo Giornaliero', 'default');
+    // Invia anche via email a tutti gli admin
+    sendEmailNotification(
+      ADMIN_EMAILS_FOR_NOTIFICATIONS.join(','),
+      'Riepilogo Giornaliero Campo ANSPI',
+      message.replace(/\n/g, '<br>')
+    );
+    
+    // ✅ IMPORTANTE: Marca come inviato (mantenuto per evitare duplicati)
+    markDailySummarySent(today);
+    
+    debugLog(`✅ Riepilogo inviato e marcato per: ${today}`);
+    
+    return {
+      status: 'ok',
+      data: {
+        date: today,
+        eventsCount: todayEvents.length,
+        marked: true
+      },
+      message: `Riepilogo inviato per ${today} (${todayEvents.length} eventi)`
+    };
+    
+  } catch (error) {
+    debugLog(`❌ Errore invio riepilogo: ${error.message}`);
+    return {
+      status: 'error',
+      message: error.message
+    };
+  }
+}
+function shouldSendTelegramNotification(bookingData) {
+  const today = new Date();
+  const bookingDate = new Date(bookingData.data);
+  const bookingTime = new Date(`${bookingData.data}T${bookingData.ora}:00`);
+  const now = new Date();
+  
+  debugLog(`🔔 === DEBUG TELEGRAM NOTIFICATION ===`);
+  debugLog(`👤 Cliente: ${bookingData.nome}`);
+  debugLog(`📅 Data prenotazione: ${bookingData.data}`);
+  debugLog(`🕐 Ora prenotazione: ${bookingData.ora}`);
+  debugLog(`📝 Evento: ${bookingData.evento}`);
+  
+  // ✅ SEMPRE invia notifica per nuovi eventi (rimosso il controllo temporaneo)
+  debugLog(`🔔 TELEGRAM: Nuova prenotazione - SEMPRE NOTIFICA`);
+  return true;
+  
+  // Caso 2: Evento last minute (stesso giorno, poche ore prima)
+  const isSameDay = bookingDate.toDateString() === today.toDateString();
+  const hoursUntilEvent = (bookingTime - now) / (1000 * 60 * 60);
+  
+  if (isSameDay && hoursUntilEvent <= 2 && hoursUntilEvent > 0) {
+    debugLog(`🔔 TELEGRAM: Evento last minute (${hoursUntilEvent.toFixed(1)} ore prima)`);
+    return true;
+  }
+  
+  debugLog(`📧 SOLO EMAIL: Evento normale`);
+  return false;
+}
+function testMarkDailySummary() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    debugLog(`🧪 Test marcatura riepilogo per oggi: ${today}`);
+    
+    // Marca oggi come "riepilogo inviato"
+    markDailySummarySent(today);
+    
+    // Verifica che sia stato marcato
+    const isMarked = checkIfDailySummarySent(today);
+    
+    debugLog(`✅ Riepilogo marcato: ${isMarked}`);
+    
+    return {
+      status: 'ok',
+      data: {
+        date: today,
+        marked: isMarked
+      },
+      message: `Riepilogo test per ${today}: ${isMarked ? 'MARCATO' : 'NON MARCATO'}`
+    };
+    
+  } catch (error) {
+    debugLog(`❌ Errore test riepilogo: ${error.message}`);
+    return {
+      status: 'error',
+      message: error.message
+    };
+  }
+}
+
+// ✅ NUOVA FUNZIONE: Pulisci cache riepiloghi giornalieri
+function clearDailySummaryCache() {
+  try {
+    const cache = CacheService.getScriptCache();
+    const today = new Date().toISOString().split('T')[0];
+    
+    debugLog(`🧹 Pulizia cache riepiloghi giornalieri...`);
+    
+    // Rimuovi cache per oggi
+    const cacheKey = `daily_summary_${today}`;
+    cache.remove(cacheKey);
+    
+    debugLog(`✅ Cache riepilogo pulita per: ${today}`);
+    
+    return {
+      status: 'ok',
+      data: {
+        date: today,
+        cacheCleared: true
+      },
+      message: `Cache riepilogo pulita per ${today}`
+    };
+    
+  } catch (error) {
+    debugLog(`❌ Errore pulizia cache: ${error.message}`);
+    return {
+      status: 'error',
+      message: error.message
+    };
+  }
+}
+/**
+ * Funzione di utilità per ottenere il chat ID Telegram di chi scrive al bot.
+ * Risponde con il chat ID e lo logga nei log di Apps Script.
+ * Da usare solo per setup/admin!
+ */
+function getTelegramChatId(e) {
+  try {
+    // L'oggetto e deve essere quello ricevuto da un webhook Telegram
+    var data = e && e.postData ? JSON.parse(e.postData.contents) : null;
+    if (!data || !data.message || !data.message.chat || !data.message.chat.id) {
+      debugLog('❌ Dati non validi per estrarre chat ID');
+      return ContentService.createTextOutput('Dati non validi');
+    }
+    var chatId = data.message.chat.id;
+    debugLog('💬 Richiesta chat ID da utente Telegram: ' + chatId);
+    // Rispondi all'utente con il suo chat ID
+    var url = 'https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage';
+    var payload = {
+      chat_id: chatId,
+      text: '✅ Il tuo chat ID Telegram è: ' + chatId,
+      parse_mode: 'HTML'
+    };
+    UrlFetchApp.fetch(url, { method: 'post', payload: payload });
+    return ContentService.createTextOutput('Chat ID inviato su Telegram: ' + chatId);
+  } catch (e) {
+    debugLog('❌ Errore getTelegramChatId: ' + e.message);
+    return ContentService.createTextOutput('Errore: ' + e.message);
+  }
+}

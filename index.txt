@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#74b9ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Campo ANSPI">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Campo ANSPI">
+    <meta name="msapplication-TileColor" content="#74b9ff">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- SEO e Social Meta Tags -->
+    <meta name="description" content="Sistema di prenotazioni per il Campo Don Michele FIORE - ANSPI Giovinazzo. Prenota calcetto, pallavolo, compleanni e eventi speciali.">
+    <meta name="keywords" content="campo calcetto, pallavolo, prenotazioni, ANSPI, Giovinazzo, sport">
+    <meta name="author" content="Parrocchia Sant'Agostino - ANSPI">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Campo Don Michele FIORE - ANSPI">
+    <meta property="og:description" content="Sistema di prenotazioni per il Campo Don Michele FIORE - ANSPI Giovinazzo">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="https://i.imgur.com/0Tl9Jv9.png">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Campo Don Michele FIORE - ANSPI">
+    <meta name="twitter:description" content="Sistema di prenotazioni per il Campo Don Michele FIORE - ANSPI Giovinazzo">
+    <meta name="twitter:image" content="https://i.imgur.com/0Tl9Jv9.png">
+    
+    <!-- Favicon e App Icons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdib3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzc0YjlmZiIvPgo8cGF0aCBkPSJNOCA4SDI0VjI0SDhWOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xMCAxMEgyMlYxNkgxMFYxNloiIGZpbGw9IiM3NGI5ZmYiLz4KPHBhdGggZD0iTTEyIDEySDIwVjE0SDEyVjE0WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEyIDE2SDIwVjE4SDEyVjE4WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+">
+    <link rel="icon" type="image/svg+xml" sizes="16x16" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdib3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiByeD0iMyIgZmlsbD0iIzc0YjlmZiIvPgo8cGF0aCBkPSJNNCA0SDEyVjEySDRWNFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik01IDVIMTFWOUg1VjlaIiBmaWxsPSIjNzRiOWZmIi8+CjxwYXRoIGQ9Ik02IDZIMTBWN0g2VjdaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNiA4SDEwVjlINlY5WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+">
+    <link rel="apple-touch-icon" sizes="180x180" href="?page=asset&name=icon-192.png">
+    <link rel="mask-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwIiBoZWlnaHQ9IjE2MCIgdmlld0JveD0iMCAwIDE2MCAxNjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMzIiIGZpbGw9IiM3NGI5ZmYiLz4KPHBhdGggZD0iTTQwIDQwSDExMFYxMTBINDBWNDBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAgNTBIMTAwVjgwSDUwVjgwWiIgZmlsbD0iIzc0YjlmZiIvPgo8cGF0aCBkPSJNNjAgNjBINzBWNzBINjBWNzBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNjAgNzVINzBWNzVINjBWNzVaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNjAgODVINzBWNzVINjBWNzVaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNjAgOTVINzBWMTA1SDYwVjEwNVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==" color="#74b9ff">
+    
+    <!-- Preconnect per performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://i.imgur.com">
+    
+    <!-- Font ottimizzato -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <title>Campo Don Michele FIORE - ANSPI</title>
+    
+    <!-- Manifest PWA servito via URL per migliore installabilità -->
+    <link rel="manifest" href="?page=manifest">
+    <script>
+        console.log('✅ Manifest PWA configurato via URL (?page=manifest)');
+    </script>
+    
+        <!-- Service Worker - Semplificato per Google Apps Script -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('?page=sw')
+                    .then(function(registration) {
+                        console.log('✅ SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                        console.log('❌ SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+    
+    <!-- Informazioni PWA per l'utente -->
+    <script>
+        // Mostra informazioni sulla PWA
+        window.addEventListener('load', function() {
+            // Controlla se l'app è installabile
+            let deferredPrompt;
+            
+            window.addEventListener('beforeinstallprompt', (e) => {
+                console.log('📱 PWA installabile rilevata');
+                deferredPrompt = e;
+                
+                // Mostra un messaggio informativo
+                if (typeof showPWAInfo === 'function') {
+                    showPWAInfo();
+                }
+            });
+            
+            // Controlla se l'app è già installata
+            if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('📱 App già installata come PWA');
+            }
+        });
+        
+        function showPWAInfo() {
+            // Crea un banner informativo
+            const banner = document.createElement('div');
+            banner.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, #74b9ff, #0984e3);
+                color: white;
+                padding: 12px 16px;
+                text-align: center;
+                font-size: 14px;
+                z-index: 10000;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            `;
+            banner.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <span>📱 App ottimizzata per mobile - Funziona offline</span>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer;">
+                        ✕
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(banner);
+            
+            // Rimuovi automaticamente dopo 5 secondi
+            setTimeout(() => {
+                if (banner.parentElement) {
+                    banner.remove();
+                }
+            }, 5000);
+        }
+    </script>
+    
+    <!-- FILTRO ERRORI ESTENSIONI BROWSER -->
+    <script>
+(function() {
+    const originalError = console.error;
+    console.error = function(...args) {
+        if (args[0] && typeof args[0] === 'string') {
+            if (args[0].includes('message port') || 
+                args[0].includes('Extension context') ||
+                args[0].includes('Unchecked runtime.lastError')) {
+                return; // Ignora silenziosamente
+            }
+        }
+        originalError.apply(console, args);
+    };
+    
+    window.addEventListener('error', function(event) {
+        if (event.message && event.message.includes('message port')) {
+            event.preventDefault();
+        }
+    });
+})();
+</script> 
+    
+    <!-- Preload critici per mobile -->
+    <link rel="preload" href="https://i.imgur.com/0Tl9Jv9.png" as="image">
+    <link rel="preload" href="https://i.imgur.com/rBbM8pH.jpeg" as="image">
+    
+    <!-- CSS critico inline per mobile -->
+    <style>
+        /* CSS critico per mobile - carica immediatamente */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 30%, #74b9ff 60%, #81ecec 100%);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 16px; 
+        }
+        
+        .header { 
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%); 
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            text-align: center; 
+            padding: 40px 24px; 
+            border-radius: 24px; 
+            margin-bottom: 24px; 
+            box-shadow: 0 12px 40px rgba(116, 185, 255, 0.12);
+        }
+        
+        .title { 
+            font-size: clamp(1.8rem, 4vw, 2.8rem); 
+            font-weight: 700; 
+            margin-bottom: 12px; 
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text; 
+        }
+        
+        .subtitle { 
+            font-size: clamp(1rem, 2.5vw, 1.3rem); 
+            font-weight: 500; 
+            color: #636e72; 
+            margin-top: 8px;
+        }
+        
+        /* Loading spinner per mobile */
+        .mobile-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 30%, #74b9ff 60%, #81ecec 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        
+        .mobile-loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .mobile-loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #74b9ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Ottimizzazioni immediate per mobile */
+        @media (max-width: 768px) {
+            .container { 
+                padding: 8px; 
+            }
+            
+            .header { 
+                padding: 20px 16px; 
+                margin-bottom: 12px;
+                border-radius: 18px;
+            }
+            
+            .title { 
+                font-size: 1.6rem; 
+            }
+            
+            .subtitle { 
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+    
+    <?!= include('style'); ?>
+</head>
+<body>
+    <!-- Loading screen per mobile -->
+    <div class="mobile-loading" id="mobileLoading">
+        <div class="mobile-loading-spinner"></div>
+    </div>
+
+    <!-- Status indicator ottimizzato per mobile -->
+    <div class="status-indicator" id="statusIndicator">🔄 Connessione...</div>
+    
+    <!-- Container principale -->
+    <div class="container">
+        <!-- Header ottimizzato -->
+        <div class="header">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                <img src="https://i.imgur.com/0Tl9Jv9.png" alt="Logo Parrocchia" style="height: 60px; object-fit: contain;" loading="eager">
+                <h1 class="title" style="margin: 0;">Campo Don Michele FIORE</h1>
+                <img src="https://i.imgur.com/0Tl9Jv9.png" alt="Logo Parrocchia" style="height: 60px; object-fit: contain;" loading="eager">
+            </div>
+            <div class="subtitle">🏆 Parrocchia Sant'Agostino - ANSPI 🏆</div>
+        </div>
+        
+        <!-- Sezione prenotazioni ottimizzata -->
+        <div class="booking-section" id="booking-section">
+    <button class="btn btn-back" id="btn-back" style="display: none;">← Indietro</button>
+    <h2 class="section-title" id="main-section-title">SCEGLI IL TUO EVENTO</h2>
+    
+            <!-- Grid Eventi ottimizzato per mobile -->
+    <div class="event-grid">
+                <button id="event-calcetto" class="event-card" aria-label="Prenota calcetto">
+                    <span class="event-icon">⚽</span>Calcetto
+                </button>
+                <button id="event-pallavolo" class="event-card pallavolo" aria-label="Prenota pallavolo">
+                    <span class="event-icon">🏐</span>Pallavolo
+                </button>
+                <button id="event-compleanno" class="event-card compleanno" aria-label="Prenota compleanno">
+                    <span class="event-icon">🎉</span>Compleanno
+                </button>
+                <button id="event-eventi" class="event-card eventi" aria-label="Prenota evento speciale">
+                    <span class="event-icon">🎪</span>Evento Straordinario
+                </button>
+    </div>
+    
+            <!-- Calendario Pubblico ottimizzato -->
+    <div class="public-calendar-container" id="publicCalendar" style="display: none;">
+        <h3 id="calendar-title">📅 Seleziona la Data per <span id="selectedEventName"></span></h3>
+        
+        <div class="calendar-view">
+            <div class="calendar-header">
+                        <button class="calendar-nav-btn prev" id="publicPrevMonth" aria-label="Mese precedente">‹</button>
+                <h3 id="publicMonthYear"></h3>
+                        <button class="calendar-nav-btn next" id="publicNextMonth" aria-label="Mese successivo">›</button>
+            </div>
+            <div class="calendar-grid" id="publicCalendarWeekdays"></div>
+            <div class="calendar-grid" id="publicCalendarDays"></div>
+        </div>
+        
+                <!-- Leggenda ottimizzata per mobile -->
+       <div class="calendar-legend">
+    <div class="legend-item">
+        <span class="legend-color" style="background: #28a745;"></span>
+        🟢 Disponibile
+    </div>
+    <div class="legend-item">
+        <span class="legend-color" style="background: #ffc107;"></span>
+        🟡 Parzialmente occupato
+    </div>
+    <div class="legend-item">
+        <span class="legend-color" style="background: #dc3545;"></span>
+        🔴 Completamente occupato
+    </div>
+    <div class="legend-item">
+        <span class="legend-color" style="background: #6c757d;"></span>
+        ⚫ Passato
+    </div>
+</div>
+        
+        <div class="calendar-help">
+            <p style="text-align: center; color: rgba(0,0,0,0.8); margin-top: 15px;">
+                💡 <strong>Clicca su un giorno</strong> per vedere i dettagli e prenotare
+            </p>
+        </div>
+    </div>
+    
+            <!-- Form Prenotazione ottimizzato -->
+    <form class="booking-form" id="bookingForm" style="display: none;">
+                <div class="form-group">
+                    <label for="nome">👤 Nome e Cognome: <em>(campo obbligatorio)</em></label>
+                    <input type="text" id="nome" required autocomplete="name" aria-describedby="nome-help">
+                    <small id="nome-help" style="display: none;">Inserisci il tuo nome completo</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">📧 Email: <em>(campo obbligatorio)</em></label>
+                    <input type="email" id="email" required autocomplete="email" aria-describedby="email-help">
+                    <small id="email-help" style="display: none;">Inserisci un indirizzo email valido</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefono">📞 Telefono: <em>(campo obbligatorio)</em></label>
+                    <input type="tel" id="telefono" required autocomplete="tel" aria-describedby="telefono-help">
+                    <small id="telefono-help" style="display: none;">Inserisci il tuo numero di telefono</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="data">📅 Data: <em>(campo obbligatorio)</em></label>
+                    <input type="date" id="data" required aria-describedby="data-help">
+                    <small id="data-help" style="display: none;">Seleziona la data dell'evento</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ora">🕐 Ora: <em>(campo obbligatorio)</em></label>
+                    <input type="time" id="ora" required aria-describedby="ora-help">
+                    <small id="ora-help" style="display: none;">Seleziona l'orario dell'evento</small>
+                </div>
+                
+                <div class="campo-selection" id="campoSelection">
+                    <div class="booking-message">⚠️ Per eventi privati, contattare l'amministratore.</div>
+                </div>
+        
+        <div class="form-group" id="note-group">
+            <label for="note">📝 Note aggiuntive:</label>
+                    <textarea id="note" rows="3" placeholder="Eventuali richieste particolari..." aria-describedby="note-help"></textarea>
+                    <small id="note-help" style="display: none;">Inserisci eventuali note o richieste speciali</small>
+        </div>
+
+                <!-- Dettagli eventi esclusivi ottimizzati -->
+        <div id="exclusive-event-details" class="exclusive-details-container" style="display: none;">
+            <div class="form-group">
+                <label for="person-count">👤 Numero approssimativo di persone:</label>
+                        <input type="number" id="person-count" min="1" placeholder="Es. 25" aria-describedby="person-count-help">
+                        <small id="person-count-help" style="display: none;">Stima del numero di partecipanti</small>
+            </div>
+                    
+            <div class="form-group">
+                <label>🎶 Necessità di impianto musicale?</label>
+                <div class="switch-field">
+                    <input type="radio" id="music-yes" name="music-option" value="Sì" />
+                    <label for="music-yes">Sì</label>
+                    <input type="radio" id="music-no" name="music-option" value="No" checked/>
+                    <label for="music-no">No</label>
+                </div>
+            </div>
+                    
+            <div class="form-group">
+                <label>🪑 Necessità di tavoli e sedie?</label>
+                <div class="switch-field">
+                    <input type="radio" id="tables-yes" name="tables-option" value="Sì" />
+                    <label for="tables-yes">Sì</label>
+                    <input type="radio" id="tables-no" name="tables-option" value="No" checked/>
+                    <label for="tables-no">No</label>
+                </div>
+            </div>
+                    
+            <div class="form-group">
+                <label for="other-requests">➕ Altre richieste particolari:</label>
+                        <textarea id="other-requests" rows="2" placeholder="Specificare qui..." aria-describedby="other-requests-help"></textarea>
+                        <small id="other-requests-help" style="display: none;">Altre richieste o specifiche particolari</small>
+            </div>
+        </div>
+        
+        <button type="button" class="btn" id="btn-submit-booking">📋 Conferma Prenotazione</button>
+    </form>
+            
+            <!-- Footer ottimizzato -->
+            <div class="copyright-footer" style="margin-top: 40px; background: #212529; padding: 25px; border-radius: 12px; border: 2px solid #fdcb6e;">
+                <div style="width: 60%; height: 3px; background: linear-gradient(90deg, #74b9ff 0%, #00b894 50%, #fdcb6e 100%); margin: 0 auto 20px; border-radius: 2px;"></div>
+                <div style="text-align: center; padding: 0 20px;">
+                    <p style="color: #fff; margin: 0; font-size: 0.9rem; font-weight: 500;">
+                        🏛️ <strong>Parrocchia Sant'Agostino</strong> • ANSPI Giovinazzo
+                    </p>
+                    <p style="color: #adb5bd; margin: 8px 0 0; font-size: 0.8rem;">
+                        Sistema di Prenotazioni © 2025 • Tutti i diritti riservati
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-folder">
+            <h2 class="section-title">📁 Informazioni Utili</h2>
+            <div class="info-grid">
+                <div class="info-card general"><h3>📋 Generali</h3><ul><li>Orari Apertura: 08:00 - 13:00 / 16:00 - 22:00</li><li>Giorni Apertura: Lunedì - Sabato</li><li style="color: #ffdddd;"><strong>Chiusura: Domenica e festivi</strong></li><li style="color: #ffdddd;"><strong>Chiusura giornaliera: 13:00 - 16:00</strong></li></ul></div>
+                <div class="info-card services"><h3>⚽ Servizi</h3><ul><li>Illuminazione</li><li>Spogliatoi</li><li>Docce</li></ul></div>
+                <div class="info-card contacts">
+                    <h3>📞 Contatti</h3>
+                    <ul>
+                        <li class="email-contact">
+                            📧 <a href="mailto:prenotazionecampoanspi@gmail.com" class="email-link">prenotazionecampoanspi@gmail.com</a>
+                            <span class="copy-hint">(clicca per copiare)</span>
+                        </li>
+                        <li class="location-contact">📍 <a href="https://www.google.com/maps/place/Campo+Marconi/@41.18303,16.6694566,19z/data=!4m6!3m5!1s0x1347fb81834ee133:0x7e5ab8ee0c5d56f6!8m2!3d41.18332!4d16.6703793!16s%2Fg%2F11nmqs3cvm?entry=ttu&g_ep=EgoyMDI1MDYzMC4wIKXMDSoASAFQAw%3D%3D" target="_blank" class="location-link">Campo Don Michele FIORE - ANSPI GIOVINAZZO</a></li>
+                    </ul>
+                </div>
+                <div class="info-card rules"><h3>🏟️ Regolamento</h3><ul><li>Cosa Portare: Scarpe adatte, Acqua</li><li>Vietato: Fumo, Alcol, Animali</li><li>Rispetto dell'orario e del luogo</li></ul></div>
+            </div>
+        </div>
+        <div class="cancel-section">
+            <h2 class="section-title">❌ Cancella Prenotazione</h2>
+            <div class="form-group"><label for="cancelCode">🔐 Codice Prenotazione:</label><input type="text" id="cancelCode" placeholder="Inserisci il codice ricevuto via email"></div>
+            <button class="btn btn-danger" id="btn-cancel-booking">🗑️ Cancella Prenotazione</button>
+        </div>
+        
+        <div class="admin-login" id="adminLoginView">
+            <h2 class="section-title">👨‍💼 Area Amministratore</h2>
+            <div class="form-group">
+                <label for="loginEmail">📧 Email Amministratore:</label>
+                <input type="email" id="loginEmail" placeholder="La tua email da amministratore" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">🔑 Password:</label>
+                <div style="position: relative;">
+                    <input type="password" id="loginPassword" placeholder="Inserisci la password">
+                    <button type="button" id="password-toggle" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #636e72;" title="Mostra/Nascondi password">
+                        👁️
+                    </button>
+                </div>
+            </div>
+                         <button class="btn" id="btn-admin-login">🚀 Accedi</button>
+             <a href="#" id="forgotPasswordLink" style="display: block; text-align: center; margin-top: 15px; font-size: 0.9rem; color: var(--text-light);" onclick="showPasswordResetForm()">Password dimenticata?</a>
+        </div>
+        
+        <div class="admin-panel" id="adminPanel">
+            <button class="btn btn-back" id="btn-admin-back" style="display: none;">← Torna al Dashboard</button>
+            <div class="admin-tabs" id="admin-tabs-container">
+                <button class="admin-tab active" data-tab="dashboard">📊 Dashboard</button>
+                <button class="admin-tab" data-tab="calendar">📅 Calendario</button>
+                <button class="admin-tab" data-tab="archive-calendar">🗂️ Archivio</button>
+                <button class="admin-tab" data-tab="bookings">📋 Prenotazioni</button>
+                <button class="admin-tab" data-tab="eventi-speciali">🎉 Eventi Speciali</button>
+                <button class="admin-tab" data-tab="new-booking">➕ Nuova</button>
+                <button class="admin-tab" data-tab="gestione-campo">🛠️ Gestione Campo</button>
+                <button id="btn-admin-exit" class="admin-tab" style="background: var(--danger-soft); color: white; margin-left: auto;">🚪 Esci</button>
+            </div>
+            <div id="admin-content-container" style="padding-top:20px;">
+                <div class="admin-content active" id="admin-dashboard">
+                    <h3>📊 Statistiche</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card"><span class="stat-number" id="totalBookings">0</span><div>Totali</div></div>
+                        <div class="stat-card"><span class="stat-number" id="todayBookings">0</span><div>Oggi</div></div>
+                        <div class="stat-card"><span class="stat-number" id="weekBookings">0</span><div>Settimana</div></div>
+                        <div class="stat-card"><span class="stat-number" id="activeBookings">0</span><div>Attive</div></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-secondary" id="btn-refresh-data">🔄 Aggiorna Dati</button>
+                    </div>
+                </div>
+                
+                <!-- ✅ SEZIONE GESTIONE CAMPO AGGIORNATA -->
+                <div class="admin-content" id="admin-gestione-campo">
+                    <h3>🛠️ Gestione Campo</h3>
+                    <!-- Info Sistema Completo -->
+<div style="background: rgba(0, 123, 255, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #007bff;">
+    <h4 style="color: white; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+        ℹ️ Funzionalità Complete del Sistema
+        <span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold;">v2.0</span>
+    </h4>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+        <!-- Gestione Prenotazioni -->
+        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+            <h5 style="color: #74b9ff; margin-bottom: 10px;">📅 Gestione Prenotazioni</h5>
+            <ul style="color: rgba(255,255,255,0.8); list-style: none; padding: 0; font-size: 0.85rem; line-height: 1.6;">
+                <li>• Calendario mensile e settimanale interattivo</li>
+                <li>• Creazione prenotazioni rapide admin</li>
+                <li>• Modifica/cancellazione in tempo reale</li>
+                <li>• Eventi ricorrenti automatici settimanali</li>
+                <li>• Approvazione eventi speciali (compleanni/eventi)</li>
+                <li>• Controllo conflitti intelligente</li>
+                <li>• Suggerimenti orari alternativi</li>
+            </ul>
+        </div>
+        
+        <!-- Sistema Notifiche -->
+        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+            <h5 style="color: #74b9ff; margin-bottom: 10px;">🔔 Sistema Notifiche</h5>
+            <ul style="color: rgba(255,255,255,0.8); list-style: none; padding: 0; font-size: 0.85rem; line-height: 1.6;">
+                <li>• Email automatiche di conferma istantanee</li>
+                <li>• Notifiche Telegram real-time per admin</li>
+                <li>• Promemoria 30 minuti prima dell'evento</li>
+                <li>• Riepilogo giornaliero automatico ore 7:00</li>
+                <li>• Alert conflitti e sovrapposizioni</li>
+                <li>• Notifiche stato eventi speciali</li>
+                <li>• Email di benvenuto nuovi admin</li>
+            </ul>
+        </div>
+        
+        <!-- Funzioni Avanzate -->
+        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+            <h5 style="color: #74b9ff; margin-bottom: 10px;">🚀 Funzioni Avanzate</h5>
+            <ul style="color: rgba(255,255,255,0.8); list-style: none; padding: 0; font-size: 0.85rem; line-height: 1.6;">
+                <li>• Ricorrenze intelligenti con spostamento automatico</li>
+                <li>• Risoluzione conflitti smart</li>
+                <li>• Archiviazione automatica eventi passati</li>
+                <li>• Sistema cache multi-livello per performance</li>
+                <li>• Backup automatico su Google Sheets</li>
+                <li>• Pulizia duplicati automatica</li>
+                <li>• Trigger schedulati configurabili</li>
+            </ul>
+        </div>
+        
+        <!-- Controlli Admin -->
+        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+            <h5 style="color: #74b9ff; margin-bottom: 10px;">👨‍💼 Controlli Admin</h5>
+            <ul style="color: rgba(255,255,255,0.8); list-style: none; padding: 0; font-size: 0.85rem; line-height: 1.6;">
+                <li>• Dashboard statistiche real-time</li>
+                <li>• Gestione multi-admin gerarchica</li>
+                <li>• Sistema password sicuro con hash</li>
+                <li>• Reset password via email</li>
+                <li>• Visualizzazione archivio storico completo</li>
+                <li>• Export dati in Excel/CSV</li>
+                <li>• Debug e diagnostica sistema avanzata</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Funzionalità Speciali -->
+    <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+        <h5 style="color: #fdcb6e; margin-bottom: 10px;">⭐ Funzionalità Speciali</h5>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; font-size: 0.85rem; color: rgba(255,255,255,0.8);">
+            <div>
+                <strong style="color: #74b9ff;">🎯 Eventi Esclusivi:</strong><br>
+                Compleanni e eventi straordinari occupano tutto il campo con approvazione admin
+            </div>
+            <div>
+                <strong style="color: #74b9ff;">🔄 Ricorrenze Smart:</strong><br>
+                Genera automaticamente eventi settimanali con risoluzione conflitti intelligente
+            </div>
+            <div>
+                <strong style="color: #74b9ff;">📱 Integrazione Telegram:</strong><br>
+                Bot dedicato per notifiche istantanee e gestione remota
+            </div>
+            <div>
+                <strong style="color: #74b9ff;">🌐 Web App Responsive:</strong><br>
+                Funziona perfettamente su desktop, tablet e smartphone
+            </div>
+        </div>
+    </div>
+    
+    <!-- Shortcuts e Tips -->
+    <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px;">
+        <h5 style="color: #28a745; margin-bottom: 10px;">💡 Tips & Shortcuts</h5>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 0.85rem; color: rgba(255,255,255,0.8);">
+            <div><kbd style="background: #495057; padding: 3px 6px; border-radius: 3px;">ESC</kbd> - Chiudi tutti i modali</div>
+            <div><kbd style="background: #495057; padding: 3px 6px; border-radius: 3px;">F5</kbd> - Aggiorna dati dal server</div>
+            <div><kbd style="background: #495057; padding: 3px 6px; border-radius: 3px;">Ctrl+F</kbd> - Cerca nel calendario</div>
+            <div><kbd style="background: #495057; padding: 3px 6px; border-radius: 3px;">Tab</kbd> - Naviga tra i campi form</div>
+            <div>🔄 Click su evento per dettagli</div>
+            <div>📅 Doppio click su giorno per nuovo evento</div>
+        </div>
+    </div>
+</div>
+<!-- ✅ SEZIONE GESTIONE TRIGGER AUTOMATICO - AGGIORNATA CON BANNER MODERNO -->
+<div class="admin-master-only" style="background: rgba(116, 185, 255, 0.1); border-radius: 12px; padding: 25px; margin-bottom: 25px; border-left: 4px solid #74b9ff;">
+    <h4 style="color: white; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+        🕛 Gestione Trigger Automatico
+        <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold;">SISTEMA</span>
+    </h4>
+    
+    <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px; line-height: 1.5;">
+        Configura e gestisci i trigger automatici per l'archiviazione degli eventi passati e la generazione delle ricorrenze intelligenti.
+    </p>
+    
+    <!-- Status dei Trigger MODERNO -->
+    <div id="trigger-status" class="trigger-status-modern">
+    <div class="trigger-status-content">
+        <div class="trigger-status-icon">
+            <span id="trigger-status-icon">⏳</span>
+        </div>
+        <div class="trigger-status-text">
+            <div id="trigger-status-title">Controllo stato trigger...</div>
+            <div id="trigger-status-subtitle">Verifica in corso</div>
+        </div>
+    </div>
+</div>
+    
+    <!-- Controlli Trigger -->
+    <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+        <button type="button" class="btn btn-success" id="btn-attiva-trigger" style="flex: 1; min-width: 200px; background: #28a745;">
+            <span class="btn-text">✅ Attiva Trigger</span>
+            <span class="btn-loading" style="display: none;">⏳ Attivazione...</span>
+        </button>
+        <button type="button" class="btn btn-danger" id="btn-disattiva-trigger" style="flex: 1; min-width: 200px; background: #dc3545;">
+            <span class="btn-text">❌ Disattiva Trigger</span>
+            <span class="btn-loading" style="display: none;">⏳ Disattivazione...</span>
+        </button>
+    </div>
+    
+    <!-- Info Sistema -->
+    <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; margin-top: 20px;">
+        <h5 style="color: white; margin-bottom: 10px;">ℹ️ Come Funziona</h5>
+        <ul style="color: rgba(255,255,255,0.8); list-style: none; padding: 0; font-size: 0.9rem;">
+            <li style="margin-bottom: 8px;">• <strong>Trigger automatico</strong> eseguito ogni giorno a mezzanotte</li>
+            <li style="margin-bottom: 8px;">• <strong>Genera ricorrenze</strong> solo quando l'evento precedente è terminato</li>
+            <li style="margin-bottom: 8px;">• <strong>Risolve conflitti</strong> spostando automaticamente le ricorrenze in caso di eventi esclusivi</li>
+            <li style="margin-bottom: 8px;">• <strong>Archivia eventi</strong> passati per mantenere il sistema sempre pulito</li>
+            <li style="margin-bottom: 8px;">• <strong>Invia notifiche</strong> Telegram all'admin per i processi completati</li>
+            <li>• <strong>Nessuna email</strong> agli utenti per spostamenti automatici</li>
+        </ul>
+    </div>
+    
+    <!-- Debug Panel (solo se necessario) -->
+    <div style="background: rgba(220, 53, 69, 0.1); border-radius: 8px; padding: 15px; margin-top: 20px; border-left: 4px solid #dc3545; display: none;" id="trigger-debug-panel">
+        <h5 style="color: #ff6b6b; margin-bottom: 10px;">🔧 Debug Trigger</h5>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-warning" id="btn-test-trigger" style="background: #ffc107; color: #212529; font-size: 0.8rem; padding: 8px 12px;">
+                <span class="btn-text">🧪 Test Manuale</span>
+                <span class="btn-loading" style="display: none;">⏳ Testing...</span>
+            </button>
+            <button class="btn btn-info" id="btn-force-cleanup" style="background: #17a2b8; font-size: 0.8rem; padding: 8px 12px;">
+                <span class="btn-text">🧹 Pulizia Forzata</span>
+                <span class="btn-loading" style="display: none;">⏳ Pulizia...</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Separatore -->
+<div style="height: 2px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); margin: 30px 0;"></div>
+
+                    
+                    <!-- Sezione Ricorrenze Intelligenti -->
+                    <div class="admin-master-only" style="background: rgba(116, 185, 255, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #74b9ff;">
+                        <h4 style="color: white; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            🔄 Sistema Ricorrenze Intelligenti
+                            <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold;">NUOVO</span>
+                        </h4>
+                        
+                        <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px; line-height: 1.5;">
+                            Il sistema genera automaticamente le ricorrenze <strong>solo quando necessario</strong> e sposta intelligentemente gli eventi in caso di conflitto con eventi esclusivi.
+                        </p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem; margin-bottom: 5px;">🤖</div>
+                                <div style="font-size: 0.9rem; color: rgba(255,255,255,0.8);">Generazione Automatica</div>
+                                <div style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">Spostamento intelligente</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem; margin-bottom: 5px;">📦</div>
+                                <div style="font-size: 0.9rem; color: rgba(255,255,255,0.8);">Archiviazione</div>
+                                <div style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">Eventi passati</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Controlli Sistema -->
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-secondary" id="btn-test-smart-recurring" style="background: #17a2b8; flex: 1; min-width: 200px;">
+                                <span class="btn-text">🧪 Test Sistema</span>
+                                <span class="btn-loading" style="display: none;">⏳ Testing...</span>
+                            </button>
+                            </div>
+                        
+                        <!-- Info stato trigger -->
+                        <div id="smart-trigger-status" style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 0.9rem;">
+                            <strong>📊 Stato Sistema:</strong> <span id="trigger-status-text">Caricamento...</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Separatore -->
+                    <div style="height: 1px; background: rgba(255,255,255,0.2); margin: 30px 0;"></div>
+                    
+                    <!-- Sezione Archiviazione Legacy (ora usa il sistema intelligente) -->
+                    <div class="admin-master-only" style="background: rgba(253, 203, 110, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #fdcb6e;">
+                        <h4 style="color: white; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            📦 Gestione Archiviazione
+                            <span style="background: #fdcb6e; color: #2d3436; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold;">AGGIORNATO</span>
+                        </h4>
+                        
+                        <p style="color: rgba(255,255,255,0.9); margin-bottom: 15px;">
+                            L'archiviazione ora è integrata nel sistema ricorrenze intelligenti. Gli eventi vengono archiviati automaticamente quando generano la ricorrenza successiva.
+                        </p>
+                        
+                        <div style="text-align: center;">
+                            <button class="btn btn-warning" id="btn-manual-archive" style="background: #fdcb6e; color: #2d3436; font-weight: 600;">
+                                <span class="btn-text">🕛 Esegui Processo Manuale</span>
+                                <span class="btn-loading" style="display: none;">⏳ Elaborazione...</span>
+                            </button>
+                            
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; font-size: 0.85rem; color: rgba(255,255,255,0.8);">
+                            💡 <strong>Nota:</strong> Il processo manuale esegue lo stesso algoritmo del trigger automatico (ricorrenze + archiviazione).
+                        </div>
+                    </div>
+                    
+                    <!-- Info Sistema -->
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; margin-top: 20px;">
+                        <h5 style="color: white; margin-bottom: 10px;">ℹ️ Come Funziona</h5>
+                        <ul style="color: rgba(255,255,255,0.8); list-style: none; padding: 0; font-size: 0.9rem;">
+                            <li style="margin-bottom: 8px;">• <strong>Trigger automatico</strong> alle ore 00:00 ogni giorno</li>
+                            <li style="margin-bottom: 8px;">• <strong>Genera ricorrenze</strong> solo quando l'evento precedente è passato</li>
+                            <li style="margin-bottom: 8px;">• <strong>Risolve conflitti</strong> spostando automaticamente le ricorrenze</li>
+                            <li style="margin-bottom: 8px;">• <strong>Archivia eventi</strong> passati per mantenere il sistema pulito</li>
+                            <li>• <strong>Nessuna email</strong> di notifica per spostamenti automatici</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Debug Panel (solo se DEBUG_MODE attivo) -->
+                    <div id="debug-panel" style="background: rgba(220, 53, 69, 0.1); border-radius: 8px; padding: 15px; margin-top: 20px; border-left: 4px solid #dc3545;">
+                        <h5 style="color: #ff6b6b; margin-bottom: 10px;">🔧 Debug Tools</h5>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-danger" id="btn-debug-calendar">📊 Debug Calendario</button>
+                            <button class="btn btn-danger" id="btn-clear-cache">🗑️ Clear Cache</button>
+                            <button class="btn btn-danger" id="btn-test-telegram">📱 Test Telegram</button>
+                            <button class="btn btn-warning" id="btn-test-daily-summary" style="background: #ffc107; color: #212529; flex: 1; min-width: 150px; font-size: 0.85rem;">
+                            <span class="btn-text">📧 Simula Riepilogo</span>
+                            <span class="btn-loading" style="display: none;">⏳ Marcatura...</span>
+                             </button>
+                        </div>
+                    </div>
+
+                    <!-- ===================== -->
+                    <!-- SEZIONE GESTIONE ADMIN MASTER -->
+                    <div id="admin-management-section" style="margin-top: 40px;">
+                      <h3>Gestione Amministratori</h3>
+                      <table id="admin-table" class="admin-table">
+                        <thead>
+                          <tr>
+                            <th>Email</th>
+                            <th>Nome</th>
+                            <th>Azioni</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                      <h4>Aggiungi nuovo admin</h4>
+                      <form id="add-admin-form" style="display:flex; gap:10px; margin-bottom:20px;">
+                        <input type="email" id="new-admin-email" placeholder="Email" required>
+                        <input type="text" id="new-admin-nome" placeholder="Nome (opzionale)">
+                        <button type="submit" class="btn">Aggiungi</button>
+                      </form>
+                    </div>
+                    <!-- Modale di conferma eliminazione -->
+                    <div id="confirm-delete-admin-modal" class="modal" style="display:none;">
+                      <div class="modal-content">
+                        <p id="confirm-delete-admin-text"></p>
+                        <button id="confirm-delete-admin-btn" class="btn btn-danger">Elimina</button>
+                        <button onclick="closeDeleteAdminModal()" class="btn">Annulla</button>
+                      </div>
+                    </div>
+                    <!-- ===================== -->
+                </div>
+                
+                 <div class="admin-content" id="admin-calendar">
+                     <div class="calendar-container">
+                        <div class="calendar-view-toggle"><button class="btn btn-secondary" id="btn-view-monthly">Mese</button><button class="btn btn-secondary" id="btn-view-weekly">Settimana</button></div>
+                                <div id="monthly-view"><div class="calendar-header"><button class="calendar-nav-btn prev" id="prevMonthBtn">‹</button><h3 id="monthYear"></h3><button class="calendar-nav-btn next" id="nextMonthBtn">›</button></div><div class="calendar-grid" id="calendarWeekdays"></div><div class="calendar-grid" id="calendarDays"></div></div>
+        <div id="weekly-view"><div class="calendar-header"><button class="calendar-nav-btn prev" id="prevWeekBtn">‹</button><h3 id="weekRange"></h3><button class="calendar-nav-btn next" id="nextWeekBtn">›</button></div><div class="weekly-grid"><div class="time-labels" id="timeLabels"></div><div class="days-container" id="daysContainer"></div></div></div>
+                    </div>
+                </div>
+
+                <div class="admin-content" id="admin-archive-calendar">
+                     <div class="calendar-container">
+                        <h3 style="color: white; text-align: center; margin-bottom: 20px;">🗂️ Calendario Storico Archiviato (Sola Lettura)</h3>
+                        <div id="archive-monthly-view">
+                                    <div class="calendar-header">
+            <button class="calendar-nav-btn prev" id="prevArchiveMonthBtn">‹</button>
+            <h3 id="archiveMonthYear"></h3>
+            <button class="calendar-nav-btn next" id="nextArchiveMonthBtn">›</button>
+        </div>
+                            <div class="calendar-grid" id="archiveCalendarWeekdays"></div>
+                            <div class="calendar-grid" id="archiveCalendarDays"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-content" id="admin-bookings"><div style="overflow-x: auto;"><table class="bookings-table"><thead>
+    <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Evento</th>
+        <th>Campo</th>
+        <th>Data/Ora</th>
+        <th>Ricorrente</th>
+        <th>Creato Da</th>
+        <th>Azioni</th>
+    </tr>
+</thead><tbody id="bookingsTableBody"></tbody></table></div></div>
+                
+                <div class="admin-content" id="admin-eventi-speciali">
+                    <h3>🎉 Eventi Speciali - Gestione Approvazioni</h3>
+                    <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px;">
+                        In questa sezione puoi gestire le richieste di eventi speciali (Compleanni e Eventi Straordinari) che richiedono approvazione.
+                    </p>
+                    
+                    <div class="status-stats" id="eventi-stats" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <div class="status-stat stat-tutti">
+                            Tutti: <span id="stat-tutti">0</span>
+                        </div>
+                        <div class="status-stat stat-in_attesa">
+                            In Attesa: <span id="stat-in_attesa">0</span>
+                        </div>
+                        <div class="status-stat stat-approvato">
+                            Approvati: <span id="stat-approvato">0</span>
+                        </div>
+                        <div class="status-stat stat-rifiutato">
+                            Rifiutati: <span id="stat-rifiutato">0</span>
+                        </div>
+                    </div>
+
+                    <div class="status-filters" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <button class="filter-btn filter-tutti active" data-filter="tutti">
+                            🔍 Tutti
+                        </button>
+                        <button class="filter-btn filter-in_attesa" data-filter="in_attesa">
+                            ⏳ In Attesa
+                        </button>
+                        <button class="filter-btn filter-approvato" data-filter="approvato">
+                            ✅ Approvati
+                        </button>
+                        <button class="filter-btn filter-rifiutato" data-filter="rifiutato">
+                            ❌ Rifiutati
+                        </button>
+                    </div>
+                    
+                    <div style="overflow-x: auto;">
+                        <table class="bookings-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Email</th>
+                                    <th>Evento</th>
+                                    <th>Data/Ora</th>
+                                    <th>Stato</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eventiSpecialiTableBody">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px;">
+                                        📝 Nessun evento speciale trovato
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                
+                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin-top: 20px; border-left: 4px solid #74b9ff;">
+                        <h4 style="color: white; margin-bottom: 10px;">ℹ️ Come funziona</h4>
+                        <ul style="color: rgba(255,255,255,0.8); list-style: none; padding: 0;">
+                            <li style="margin-bottom: 8px;">• <strong>In Attesa:</strong> Eventi che necessitano approvazione</li>
+                            <li style="margin-bottom: 8px;">• <strong>Approva:</strong> Conferma l'evento e invia email al cliente</li>
+                            <li style="margin-bottom: 8px;">• <strong>Rifiuta:</strong> Respinge la richiesta con motivazione</li>
+                            <li>• <strong>Email:</strong> Viene inviata automaticamente all'approvazione</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <form class="admin-content" id="admin-new-booking">
+                    <h3>➕ Nuova Prenotazione Admin</h3>
+                    <div class="form-group"><label for="adminNome">👤 Nome e Cognome:</label><input type="text" id="adminNome" required></div>
+                    
+                    <div class="form-group" id="adminEmailGroup" style="display: none;">
+                        <label for="adminEmail">📧 Email Richiedente: <em>(obbligatoria per eventi speciali)</em></label>
+                        <input type="email" id="adminEmail" placeholder="Inserisci email del richiedente per conferma evento">
+                    </div>
+                    
+                    <div class="form-group"><label for="adminTelefono">📞 Telefono:</label><input type="tel" id="adminTelefono" required></div>
+                    <div class="form-group"><label for="adminEvento">🎯 Tipo Evento:</label><select id="adminEvento" required><option value="">Seleziona evento</option><option value="calcetto">⚽ Calcetto</option><option value="pallavolo">🏐 Pallavolo</option><option value="compleanno">🎉 Compleanno</option><option value="eventi">🎪 Evento Straordinario</option></select></div>
+                    
+                    <div class="form-group" id="adminConfirmGroup" style="display: none;">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="adminConfermaEvento" class="checkbox-large">
+                            <label for="adminConfermaEvento" class="checkbox-label" style="color: white !important;">
+                                ✅ Confermo l'approvazione di questo evento speciale
+                            </label>
+                        </div>
+                        <small style="color: rgba(255,255,255,0.8); margin-top: 8px; display: block;">
+                            L'evento occuperà tutto il campo e verrà inviata email di conferma al richiedente.
+                        </small>
+                    </div>
+                    
+                    <div class="form-group"><label for="adminData">📅 Data:</label><input type="date" id="adminData" required></div>
+                    <div class="form-group"><label for="adminOra">🕐 Ora:</label><input type="time" id="adminOra" required></div>
+                    
+                    <div class="form-group" id="admin-note-group">
+                        <label for="adminNote">📝 Note:</label>
+                        <textarea id="adminNote" rows="3" placeholder="Note aggiuntive per l'evento..."></textarea>
+                    </div>
+
+                    <div id="admin-exclusive-event-details" class="exclusive-details-container" style="display: none;">
+                        <div class="form-group">
+                            <label for="admin-person-count">👤 Numero approssimativo di persone:</label>
+                            <input type="number" id="admin-person-count" min="1" placeholder="Es. 25">
+                        </div>
+                        <div class="form-group">
+                            <label>🎶 Necessità di impianto musicale?</label>
+                            <div class="switch-field">
+                                <input type="radio" id="admin-music-yes" name="admin-music-option" value="Sì" />
+                                <label for="admin-music-yes">Sì</label>
+                                <input type="radio" id="admin-music-no" name="admin-music-option" value="No" checked/>
+                                <label for="admin-music-no">No</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>🪑 Necessità di tavoli e sedie?</label>
+                            <div class="switch-field">
+                                <input type="radio" id="admin-tables-yes" name="admin-tables-option" value="Sì" />
+                                <label for="admin-tables-yes">Sì</label>
+                                <input type="radio" id="admin-tables-no" name="admin-tables-option" value="No" checked/>
+                                <label for="admin-tables-no">No</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-other-requests">➕ Altre richieste particolari:</label>
+                            <textarea id="admin-other-requests" rows="2" placeholder="Specificare qui..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="adminRecurringGroup">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="adminRicorrente" class="checkbox-large">
+                            <label for="adminRicorrente" class="checkbox-label" style="color: white !important;">
+                                🔄 Evento Ricorrente
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn" id="btn-admin-submit-booking">📋 Crea Prenotazione</button>
+                </form>
+                
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; padding: 15px 20px; margin-top: 5px;">
+        <img src="https://i.imgur.com/rBbM8pH.jpeg" alt="Logo ANSPI" style="height: 60px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <p style="font-size: 0.8rem; color: #636e72; margin-top: 8px; font-family: 'Nunito', sans-serif;">
+        Powered by Gilgamesh
+    </p>
+    </div>
+    
+    <div id="confirmModal" class="modal"><div class="modal-content"><div class="modal-header"><h2 class="modal-title" id="confirmModalTitle"></h2><span id="close-confirm-modal" class="close">×</span></div><div id="confirmContent"></div><div style="padding: 24px; text-align: right;"><button class="btn btn-danger" id="btn-cancel-final-booking" style="margin-right: 12px; background: var(--text-light);">❌ Annulla</button><button class="btn" id="btn-confirm-final-booking">✅ Conferma</button></div></div></div>
+    <div id="details-modal" class="modal"><div class="modal-content" id="details-modal-content-wrapper"><div class="modal-header"><h2 class="modal-title" id="details-modal-title"></h2><span id="close-details-modal" class="close">×</span></div><div id="details-modal-body"></div></div></div>
+    <div id="conflictModal" class="modal"><div class="modal-content"><div class="modal-header"><h2 class="modal-title">⚠️ Conflitto Orario</h2><span id="close-conflict-modal-btn" class="close">×</span></div><div id="conflictContent" class="confirm-modal-body" style="padding: 24px;"></div></div></div>
+    
+    <div id="resetPasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="resetModalTitle">🔑 Reset Password</h2>
+                <span id="close-reset-modal" class="close">×</span>
+            </div>
+            <div id="resetContent" class="confirm-modal-body" style="padding: 24px; text-align: left;"></div>
+            <div id="resetFooter" style="padding: 24px; text-align: right;"></div>
+        </div>
+    </div>
+    
+    <!-- Modal di Conferma Archiviazione -->
+    <div id="archiveModal" class="modal">
+        <div class="modal-content archive-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🕛 Gestione Trigger Automatico</h2>
+                <span id="close-archive-modal" class="close">×</span>
+            </div>
+            <div class="archive-modal-body">
+                <div class="archive-text">
+                    <h3>🕛 Archiviazione Automatica</h3>
+                    <p>Configura l'archiviazione automatica degli eventi passati. Il sistema:</p>
+                    <ul>
+                        <li>✅ Si esegue automaticamente ogni giorno a mezzanotte</li>
+                        <li>✅ Sposta gli eventi passati in un archivio separato</li>
+                        <li>✅ Mantiene i dati per riferimento futuro</li>
+                        <li>✅ Migliora le prestazioni del sistema</li>
+                        <li>📱 Invia notifica Telegram quando archivia eventi</li>
+                    </ul>
+                    <p><strong>Attiva il trigger per iniziare l'archiviazione automatica!</strong></p>
+                </div>
+            </div>
+            
+            <!-- Sezione Trigger Automatico -->
+            <div style="padding: 24px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);">
+                <h5 style="color: white; margin-bottom: 15px;">🕛 Trigger Automatico di Archiviazione</h5>
+                <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px; font-size: 0.9rem;">
+                    Configura l'archiviazione automatica giornaliera a mezzanotte per mantenere il sistema sempre pulito.
+                </p>
+                
+                <div id="trigger-status" style="margin-bottom: 20px;">
+                    <div class="alert alert-info" style="background: rgba(74, 144, 226, 0.2); border: 1px solid rgba(74, 144, 226, 0.3); color: #74b9ff; padding: 12px; border-radius: 8px;">
+                        <strong>⏳ Controllo stato trigger...</strong>
+                    </div>
+                </div>
+                
+                <div class="btn-group" role="group" style="display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-success" id="btn-create-trigger" style="flex: 1;">
+                        <span class="btn-text">✅ Attiva Trigger</span>
+                        <span class="btn-loading" style="display: none;">⏳ Attivazione...</span>
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn-delete-trigger" style="flex: 1;">
+                        <span class="btn-text">❌ Disattiva Trigger</span>
+                        <span class="btn-loading" style="display: none;">⏳ Disattivazione...</span>
+                    </button>
+                    <button type="button" class="btn btn-warning" id="btn-disable-all-triggers" style="flex: 1;">
+                        <span class="btn-text">🚫 Disattiva Tutti</span>
+                        <span class="btn-loading" style="display: none;">⏳ Disattivazione...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>const serverData = <?!= JSON.stringify(queryString || {}) ?>;</script>
+    <?!= include('script'); ?>
+    
+ <script>
+// Script per inizializzare il pannello ricorrenze intelligenti
+document.addEventListener('DOMContentLoaded', function() {
+    setupSmartRecurringListeners();
+    
+    if (typeof isAdminLoggedIn !== 'undefined' && isAdminLoggedIn) {
+        checkSmartTriggerStatus();
+    }
+});
+
+function setupSmartRecurringListeners() {
+    // Test Sistema Ricorrenze
+    const testBtn = document.getElementById('btn-test-smart-recurring');
+    if (testBtn) {
+        testBtn.addEventListener('click', async function(event) {
+            const btn = event.target.closest('button');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            try {
+                const result = await makeRequest('testSmartRecurring'); // ✅ Azione corretta
+                if (result.success) { // ✅ Controlla success
+                    showBanner(`✅ Test completato: ${result.tests.length} test eseguiti, ${result.summary.passed} successi`, 'success', 6000);
+                    await loadInitialData(true);
+                    await checkSmartTriggerStatus();
+                } else {
+                    showBanner(`❌ Errore: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showBanner('❌ Errore durante il test del sistema', 'error');
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+    }
+    
+    // Setup Trigger
+    const setupBtn = document.getElementById('btn-setup-smart-trigger');
+    if (setupBtn) {
+        setupBtn.addEventListener('click', async function(event) {
+            const btn = event.target.closest('button');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            try {
+                const result = await makeRequest('setupSmartTrigger'); // ✅ Azione corretta
+                if (result.success) { // ✅ Controlla success
+                    showBanner(`✅ ${result.message}`, 'success');
+                    await checkSmartTriggerStatus();
+                } else {
+                    showBanner(`❌ Errore: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showBanner('❌ Errore durante la configurazione del trigger', 'error');
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+    }
+    
+    // Archiviazione Manuale (ora usa sistema intelligente)
+    const archiveBtn = document.getElementById('btn-manual-archive');
+    if (archiveBtn) {
+        archiveBtn.addEventListener('click', async function(event) {
+            const btn = event.target.closest('button');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            try {
+                const result = await makeRequest('manualRecurringCheck'); // ✅ Azione corretta
+                if (result.status === 'ok') {
+                    showBanner(`✅ Processo completato: ${result.data.generatedCount} ricorrenze generate, ${result.data.archivedCount} eventi archiviati`, 'success', 6000);
+                    await loadInitialData(true);
+                    await checkSmartTriggerStatus();
+                } else {
+                    showBanner(`❌ Errore: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showBanner('❌ Errore durante il processo', 'error');
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+    }
+    
+    // ✅ Pulizia Duplicati Ricorrenze
+    const cleanupBtn = document.getElementById('btn-cleanup-duplicates');
+    if (cleanupBtn) {
+        cleanupBtn.addEventListener('click', async function(event) {
+            const btn = event.target.closest('button');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            try {
+                const result = await makeRequest('cleanupDuplicateRecurringEvents');
+                if (result.status === 'ok') {
+                    showBanner(`✅ Pulizia completata: ${result.data.deletedCount} eventi duplicati eliminati`, 'success', 6000);
+                    await loadInitialData(true);
+                } else {
+                    showBanner(`❌ Errore: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showBanner('❌ Errore durante la pulizia', 'error');
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+    }
+    
+    // Debug Tools
+    setupDebugTools();
+}
+
+async function checkSmartTriggerStatus() {
+    const statusDiv = document.getElementById('smart-trigger-status');
+    const statusText = document.getElementById('trigger-status-text');
+    
+    if (!statusDiv || !statusText) return;
+    
+    statusDiv.className = 'loading';
+    statusText.textContent = 'Controllo stato...';
+    
+    try {
+        const result = await makeRequest('getTriggerInfo');
+        
+        // ✅ Gestisci entrambi i formati di risposta
+        const isSuccess = result.success === true || result.active === true || (result.count !== undefined && result.count > 0);
+        const triggerCount = result.count || 0;
+        const message = result.message || 'Nessuna informazione disponibile';
+        
+        console.log('🔍 Risposta getTriggerInfo:', result); // Debug
+        
+        if (isSuccess && triggerCount > 0) {
+            statusDiv.className = 'active';
+            statusText.innerHTML = `✅ <strong>Sistema Attivo</strong> - ${triggerCount} trigger configurato/i`;
+        } else if (triggerCount === 0) {
+            statusDiv.className = 'inactive';
+            statusText.innerHTML = `❌ <strong>Sistema Non Attivo</strong> - Nessun trigger configurato`;
+        } else {
+            // Fallback per altri casi
+            statusDiv.className = 'inactive';
+            statusText.innerHTML = `⚠️ <strong>Stato Indeterminato</strong> - ${message}`;
+        }
+        
+    } catch (error) {
+        console.error('❌ Errore checkSmartTriggerStatus:', error);
+        statusDiv.className = 'inactive';
+        statusText.innerHTML = `❌ <strong>Errore di Connessione</strong> - Impossibile verificare lo stato`;
+    }
+}
+
+function setupDebugTools() {
+    // Debug Calendario
+    const debugCalendarBtn = document.getElementById('btn-debug-calendar');
+    if (debugCalendarBtn) {
+        debugCalendarBtn.addEventListener('click', function() {
+            const result = debugCalendarComplete();
+            showBanner(`🔧 ${result.message}`, 'info', 4000);
+        });
+    }
+    
+    // Clear Cache
+    const clearCacheBtn = document.getElementById('btn-clear-cache');
+    if (clearCacheBtn) {
+        clearCacheBtn.addEventListener('click', async function() {
+            try {
+                const result = await makeRequest('clearBookingsCache');
+                if (result.status === 'ok') {
+                    showBanner('🗑️ Cache pulita con successo', 'success');
+                    await loadInitialData(true);
+                }
+            } catch (error) {
+                showBanner('❌ Errore pulizia cache', 'error');
+            }
+        });
+    }
+    
+    // Test Connessione
+    const testSheetBtn = document.getElementById('btn-test-sheet');
+    if (testSheetBtn) {
+        testSheetBtn.addEventListener('click', async function(event) {
+            const btn = event.target.closest('button');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            try {
+                // ✅ TIMEOUT più corto per evitare hang
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Timeout test connessione')), 8000)
+                );
+                
+                const testPromise = makeRequest('testSheetConnection');
+                
+                const result = await Promise.race([testPromise, timeoutPromise]);
+                
+                if (result.success) {
+                    showBanner(`✅ ${result.message}: ${result.data.rows} righe`, 'success');
+                } else {
+                    showBanner(`❌ ${result.message}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Test connessione fallito:', error);
+                
+                if (error.message.includes('Timeout')) {
+                    showBanner('⏱️ Test connessione troppo lento - sistema probabilmente OK', 'warning', 6000);
+                } else {
+                    showBanner('❌ Test connessione fallito', 'error');
+                }
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+    }
+    
+    // Test Telegram
+    const testTelegramBtn = document.getElementById('btn-test-telegram');
+    if (testTelegramBtn) {
+        testTelegramBtn.addEventListener('click', async function(event) {
+            const btn = event.target.closest('button');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            try {
+                const result = await makeRequest('testTelegramNotification');
+                if (result.status === 'ok') {
+                    showBanner('📱 Test Telegram inviato con successo', 'success');
+                } else {
+                    showBanner(`❌ ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showBanner('❌ Errore test Telegram', 'error');
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+    }
+    
+    // ✅ Test Daily Summary
+    const testDailySummaryBtn = document.getElementById('btn-test-daily-summary');
+    if (testDailySummaryBtn) {
+        testDailySummaryBtn.addEventListener('click', async function(event) {
+            const btn = event.target.closest('button');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            try {
+                const result = await makeRequest('testMarkDailySummary');
+                if (result.status === 'ok') {
+                    showBanner(`✅ Riepilogo simulato per oggi! Ora le prenotazioni di oggi attiveranno Telegram`, 'success', 6000);
+                } else {
+                    showBanner(`❌ ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showBanner('❌ Errore test riepilogo', 'error');
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+    }
+}
+// Variabile per tracciare l'admin selezionato
+let selectedAdminForDelete = null;
+
+function updateAdminManagementVisibility() {
+    const section = document.getElementById('admin-management-section');
+    const body = document.body;
+    
+    if (currentAdminEmail && currentAdminEmail.toLowerCase() === 'prenotazionecampoanspi@gmail.com') {
+        body.classList.add('master-admin');
+        if (section) {
+            section.style.display = 'block';
+            loadAdminsTable();
+        }
+    } else {
+        body.classList.remove('master-admin');
+        if (section) {
+            section.style.display = 'none';
+        }
+    }
+}
+
+// Carica gli admin nella tabella
+async function loadAdminsTable() {
+    try {
+        const result = await makeRequest('getAllAdmins');
+        if (result.status === 'ok') {
+            renderAdminsTable(result.data.admins);
+        }
+    } catch (error) {
+        console.error('Errore caricamento admin:', error);
+        showBanner('❌ Errore caricamento lista admin', 'error');
+    }
+}
+
+// Renderizza la tabella admin
+function renderAdminsTable(admins) {
+    const tbody = document.querySelector('#admin-table tbody');
+    if (!tbody) return;
+    
+    if (admins.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Nessun admin trovato</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = '';
+    
+    admins.forEach(admin => {
+        const isMaster = admin.email.toLowerCase() === 'prenotazionecampoanspi@gmail.com';
+        const row = document.createElement('tr');
+        
+        // Colonna Email
+        const emailCell = document.createElement('td');
+        emailCell.innerHTML = admin.email + (isMaster ? ' <span style="color: #dc3545;">👑 MASTER</span>' : '');
+        row.appendChild(emailCell);
+        
+        // Colonna Nome
+        const nameCell = document.createElement('td');
+        nameCell.textContent = admin.nome || '-';
+        row.appendChild(nameCell);
+        
+        // Colonna Azioni
+        const actionsCell = document.createElement('td');
+        if (!isMaster) {
+            actionsCell.innerHTML = `
+                <button class="btn btn-warning btn-sm" onclick="resetAdminPassword('${admin.email}')" style="margin-right: 5px;">
+                    🔑 Reset Password
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="confirmDeleteAdmin('${admin.email}')">
+                    🗑️ Rimuovi
+                </button>
+            `;
+        } else {
+            actionsCell.innerHTML = '<span style="color: #6c757d;">Non modificabile</span>';
+        }
+        row.appendChild(actionsCell);
+        
+        tbody.appendChild(row);
+    });
+}
+
+// Reset password admin
+async function resetAdminPassword(email) {
+    if (!confirm(`Resettare la password per ${email}?`)) {
+        return;
+    }
+    
+    try {
+        const result = await makeRequest('resetAdminPassword', {
+            masterEmail: currentAdminEmail,
+            adminEmailToReset: email
+        });
+        
+        if (result.status === 'ok') {
+            showBanner(`✅ ${result.message}`, 'success');
+            loadAdminsTable();
+        } else {
+            showBanner(`❌ ${result.message}`, 'error');
+        }
+    } catch (error) {
+        showBanner('❌ Errore reset password', 'error');
+    }
+}
+
+// Mostra modale conferma eliminazione
+function confirmDeleteAdmin(email) {
+    selectedAdminForDelete = email;
+    const modal = document.getElementById('confirm-delete-admin-modal');
+    const text = document.getElementById('confirm-delete-admin-text');
+    text.textContent = `Sei sicuro di voler rimuovere l'admin ${email}? Questa azione non può essere annullata.`;
+    modal.style.display = 'block';
+}
+
+// Chiudi modale eliminazione
+function closeDeleteAdminModal() {
+    const modal = document.getElementById('confirm-delete-admin-modal');
+    modal.style.display = 'none';
+    selectedAdminForDelete = null;
+}
+
+// Setup event listeners per il form di aggiunta admin
+document.addEventListener('DOMContentLoaded', function() {
+    // Form aggiunta admin
+    const addAdminForm = document.getElementById('add-admin-form');
+    if (addAdminForm) {
+        addAdminForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('new-admin-email').value.trim();
+            const nome = document.getElementById('new-admin-nome').value.trim();
+            
+            if (!email || !email.includes('@')) {
+                showBanner('❌ Inserisci un\'email valida', 'error');
+                return;
+            }
+            
+            try {
+                const result = await makeRequest('addNewAdmin', {
+                    masterEmail: currentAdminEmail,
+                    newAdminEmail: email,
+                    nome: nome
+                });
+                
+                if (result.status === 'ok') {
+                    showBanner(`✅ ${result.message}`, 'success');
+                    addAdminForm.reset();
+                    loadAdminsTable();
+                } else {
+                    showBanner(`❌ ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showBanner('❌ Errore aggiunta admin', 'error');
+            }
+        });
+    }
+    
+    // Pulsante conferma eliminazione
+    const confirmDeleteBtn = document.getElementById('confirm-delete-admin-btn');
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', async function() {
+            if (!selectedAdminForDelete) return;
+            
+            try {
+                const result = await makeRequest('removeAdmin', {
+                    masterEmail: currentAdminEmail,
+                    adminEmailToRemove: selectedAdminForDelete
+                });
+                
+                if (result.status === 'ok') {
+                    showBanner(`✅ ${result.message}`, 'success');
+                    closeDeleteAdminModal();
+                    loadAdminsTable();
+                } else {
+                    showBanner(`❌ ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showBanner('❌ Errore rimozione admin', 'error');
+            }
+        });
+    }
+});
+
+// Modifica la funzione adminLogin per aggiornare la visibilità
+const originalAdminLoginFunc = window.adminLogin;
+if (originalAdminLoginFunc && typeof originalAdminLoginFunc === 'function') {
+    window.adminLogin = async function(event) {
+        // Chiama la funzione originale
+        const result = await originalAdminLoginFunc(event);
+        
+        // Se il login ha successo, aggiorna la visibilità
+        if (isAdminLoggedIn) {
+            updateAdminManagementVisibility();
+        }
+        
+        return result;
+    };
+}
+// =====================
+// SETUP EVENT LISTENERS TRIGGER
+// =====================
+function setupTriggerEventListeners() {
+    const btnAttiva = document.getElementById('btn-attiva-trigger');
+    const btnDisattiva = document.getElementById('btn-disattiva-trigger');
+    
+    if (btnAttiva) {
+        btnAttiva.removeEventListener('click', attivaTrigger); // Rimuovi listener duplicati
+        btnAttiva.addEventListener('click', attivaTrigger);
+        console.log('✅ Event listener attiva trigger collegato');
+    }
+    
+    if (btnDisattiva) {
+        btnDisattiva.removeEventListener('click', disattivaTrigger); // Rimuovi listener duplicati  
+        btnDisattiva.addEventListener('click', disattivaTrigger);
+        console.log('✅ Event listener disattiva trigger collegato');
+    }
+}
+
+// =====================
+// FUNZIONI TRIGGER
+// =====================
+async function attivaTrigger() {
+    console.log('🔵 attivaTrigger chiamata');
+    const btn = document.getElementById('btn-attiva-trigger');
+    if (!btn || btn.disabled) return;
+    
+    btn.classList.add('loading');
+    btn.disabled = true;
+    
+    try {
+        console.log('📡 Invio richiesta setupEventNotifications...');
+        const result = await makeRequest('setupEventNotifications');
+        console.log('📥 Risposta ricevuta:', result);
+        
+        if (result.status === 'ok') {
+            showBanner(`✅ Trigger di notifica attivati! (${result.data.triggersCreated} trigger creati, ${result.data.triggersDeleted} rimossi)`, 'success', 5000);
+            await checkTriggerStatus();
+        } else {
+            showBanner(`❌ Errore: ${result.message}`, 'error');
+        }
+        
+    } catch (error) {
+        console.error('❌ Errore attivazione trigger:', error);
+        showBanner('❌ Errore di comunicazione', 'error');
+        
+    } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
+
+async function disattivaTrigger() {
+    console.log('🔴 disattivaTrigger chiamata');
+    const btn = document.getElementById('btn-disattiva-trigger');
+    if (!btn || btn.disabled) return;
+    
+    if (!confirm('Disattivare tutti i trigger automatici?')) {
+        return;
+    }
+    
+    btn.classList.add('loading');
+    btn.disabled = true;
+    
+    try {
+        console.log('📡 Invio richiesta disableAllNotificationTriggers...');
+        const result = await makeRequest('disableAllNotificationTriggers');
+        console.log('📥 Risposta ricevuta:', result);
+        
+        if (result.status === 'ok') {
+            showBanner(`✅ Trigger di notifica disattivati! (${result.deletedCount || 0} trigger rimossi: ${result.deletedTriggers.join(', ')})`, 'success', 5000);
+            await checkTriggerStatus();
+        } else {
+            showBanner(`❌ Errore: ${result.message}`, 'error');
+        }
+        
+    } catch (error) {
+        console.error('❌ Errore disattivazione trigger:', error);
+        showBanner('❌ Errore di comunicazione', 'error');
+        
+    } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
+// =====================
+// GESTIONE SHOWADMINTAB UNIFICATA
+// =====================
+const originalShowAdminTab = window.showAdminTab;
+if (originalShowAdminTab && typeof originalShowAdminTab === 'function') {
+    window.showAdminTab = async function(tabName) {
+        await originalShowAdminTab(tabName);
+        
+        if (tabName === 'gestione-campo') {
+            updateAdminManagementVisibility();
+            
+            setTimeout(() => {
+                setupTriggerEventListeners(); // ✅ AGGIUNTO
+                checkTriggerStatus();
+                checkSmartTriggerStatus();
+            }, 500);
+        }
+    };
+}
+</script>
+   
+
+
+</body>
+</html>

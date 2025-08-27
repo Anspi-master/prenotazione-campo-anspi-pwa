@@ -1,0 +1,645 @@
+Log esecuzione
+22:05:24	Notifica	Esecuzione avviata
+22:05:26	Informazioni	🧪 === TEST RICHIESTE HTTP REALI ===
+22:05:26	Informazioni	
+🧪 Test 1: Manifest Request
+22:05:26	Informazioni	📋 Parametri: { page: 'manifest' }
+22:05:26	Informazioni	🔍 === DEBUG doGet ===
+22:05:26	Informazioni	🔍 doGet chiamato con parametri: { page: 'manifest' }
+22:05:26	Informazioni	🔍 Tipo di e.parameter: object
+22:05:26	Informazioni	🔍 e.parameter è null/undefined? false
+22:05:26	Informazioni	🔍 URL completa: {"page":"manifest"}
+22:05:26	Informazioni	🔍 Chiavi in e.parameter: [ 'page' ]
+22:05:26	Informazioni	🔍 Numero di parametri: 1
+22:05:26	Informazioni	🔍 e.parameter.page: manifest
+22:05:26	Informazioni	🔍 Tipo di e.parameter.page: string
+22:05:26	Informazioni	🔍 e.parameter.page === "manifest": true
+22:05:26	Informazioni	🔍 e.parameter.page === "sw": false
+22:05:26	Informazioni	🔍 Parametro page: manifest (tipo: string)
+22:05:26	Informazioni	🛣️ Route impostata da e.parameter.page: manifest
+22:05:26	Informazioni	🛣️ Route finale: manifest
+22:05:26	Informazioni	🛣️ Route === "manifest": true
+22:05:26	Informazioni	🛣️ Route === "sw": false
+22:05:26	Informazioni	🛣️ Route === "api": false
+22:05:26	Informazioni	🛣️ Route === "app": false
+22:05:26	Informazioni	📋 Servendo manifest PWA...
+22:05:26	Informazioni	Logging output too large. Truncating output. 📋 Manifest MIME type: { toString: [Function: toString],
+  name: [Function: toString],
+  toJSON: [Function: toString],
+  ordinal: [Function: ordinal],
+  compareTo: [Function: compareTo],
+  CSV: 
+   { toString: [Function: toString],
+     name: [Function: toString],
+     toJSON: [Function: toString],
+     ordinal: [Function: ordinal],
+     compareTo: [Function: compareTo],
+     CSV: [Circular],
+     ICAL: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Circular],
+        JAVASCRIPT: [Object],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Object] },
+     JAVASCRIPT: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Object] },
+     JSON: [Circular],
+     TEXT: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Object],
+        JAVASCRIPT: [Object],
+        JSON: [Circular],
+        TEXT: [Circular],
+        VCARD: [Object] },
+     VCARD: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Object],
+        JAVASCRIPT: [Object],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Circular] } },
+  ICAL: 
+   { toString: [Function: toString],
+     name: [Function: toString],
+     toJSON: [Function: toString],
+     ordinal: [Function: ordinal],
+     compareTo: [Function: compareTo],
+     CSV: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Circular],
+        JAVASCRIPT: [Object],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Object] },
+     ICAL: [Circular],
+     JAVASCRIPT: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Circular],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Object] },
+     JSON: [Circular],
+     TEXT: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Circular],
+        JAVASCRIPT: [Object],
+        JSON: [Circular],
+        TEXT: [Circular],
+        VCARD: [Object] },
+     VCARD: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Circular],
+        JAVASCRIPT: [Object],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Circular] } },
+  JAVASCRIPT: 
+   { toString: [Function: toString],
+     name: [Function: toString],
+     toJSON: [Function: toString],
+     ordinal: [Function: ordinal],
+     compareTo: [Function: compareTo],
+     CSV: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Object] },
+     ICAL: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Circular],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Object] },
+     JAVASCRIPT: [Circular],
+     JSON: [Circular],
+     TEXT: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Circular],
+        VCARD: [Object] },
+     VCARD: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Circular] } },
+  JSON: [Circular],
+  TEXT: 
+   { toString: [Function: toString],
+     name: [Function: toString],
+     toJSON: [Function: toString],
+     ordinal: [Function: ordinal],
+     compareTo: [Function: compareTo],
+     CSV: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Object],
+        JAVASCRIPT: [Object],
+        JSON: [Circular],
+        TEXT: [Circular],
+        VCARD: [Object] },
+     ICAL: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Circular],
+        JAVASCRIPT: [Object],
+        JSON: [Circular],
+        TEXT: [Circular],
+        VCARD: [Object] },
+     JAVASCRIPT: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Circular],
+        VCARD: [Object] },
+     JSON: [Circular],
+     TEXT: [Circular],
+     VCARD: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Object],
+        JAVASCRIPT: [Object],
+        JSON: [Circular],
+        TEXT: [Circular],
+        VCARD: [Circular] } },
+  VCARD: 
+   { toString: [Function: toString],
+     name: [Function: toString],
+     toJSON: [Function: toString],
+     ordinal: [Function: ordinal],
+     compareTo: [Function: compareTo],
+     CSV: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Object],
+        JAVASCRIPT: [Object],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Circular] },
+     ICAL: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Circular],
+        JAVASCRIPT: [Object],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Circular] },
+     JAVASCRIPT: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [O
+22:05:26	Informazioni	📋 Manifest content preview: {"name":"Campo Don Michele FIORE - ANSPI","short_name":"Campo Don Michele FIORE","description":"Sist...
+22:05:26	Informazioni	📋 MIME Type: JSON (expected: JSON) ✅
+22:05:26	Informazioni	📋 Content check: ✅ (contains: name)
+22:05:26	Informazioni	📋 Content preview: {"name":"Campo Don Michele FIORE - ANSPI","short_name":"Campo Don Michele FIORE","description":"Sist...
+22:05:26	Informazioni	✅ Test 1 PASSED
+22:05:26	Informazioni	
+🧪 Test 2: Service Worker Request
+22:05:26	Informazioni	📋 Parametri: { page: 'sw' }
+22:05:26	Informazioni	🔍 === DEBUG doGet ===
+22:05:26	Informazioni	🔍 doGet chiamato con parametri: { page: 'sw' }
+22:05:26	Informazioni	🔍 Tipo di e.parameter: object
+22:05:26	Informazioni	🔍 e.parameter è null/undefined? false
+22:05:26	Informazioni	🔍 URL completa: {"page":"sw"}
+22:05:26	Informazioni	🔍 Chiavi in e.parameter: [ 'page' ]
+22:05:26	Informazioni	🔍 Numero di parametri: 1
+22:05:26	Informazioni	🔍 e.parameter.page: sw
+22:05:26	Informazioni	🔍 Tipo di e.parameter.page: string
+22:05:26	Informazioni	🔍 e.parameter.page === "manifest": false
+22:05:26	Informazioni	🔍 e.parameter.page === "sw": true
+22:05:26	Informazioni	🔍 Parametro page: sw (tipo: string)
+22:05:26	Informazioni	🛣️ Route impostata da e.parameter.page: sw
+22:05:26	Informazioni	🛣️ Route finale: sw
+22:05:26	Informazioni	🛣️ Route === "manifest": false
+22:05:26	Informazioni	🛣️ Route === "sw": true
+22:05:26	Informazioni	🛣️ Route === "api": false
+22:05:26	Informazioni	🛣️ Route === "app": false
+22:05:26	Informazioni	🔧 Servendo Service Worker...
+22:05:26	Informazioni	Logging output too large. Truncating output. 🔧 Service Worker MIME type: { toString: [Function: toString],
+  name: [Function: toString],
+  toJSON: [Function: toString],
+  ordinal: [Function: ordinal],
+  compareTo: [Function: compareTo],
+  CSV: 
+   { toString: [Function: toString],
+     name: [Function: toString],
+     toJSON: [Function: toString],
+     ordinal: [Function: ordinal],
+     compareTo: [Function: compareTo],
+     CSV: [Circular],
+     ICAL: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Circular],
+        JAVASCRIPT: [Circular],
+        JSON: [Object],
+        TEXT: [Object],
+        VCARD: [Object] },
+     JAVASCRIPT: [Circular],
+     JSON: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Object] },
+     TEXT: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Object],
+        TEXT: [Circular],
+        VCARD: [Object] },
+     VCARD: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Object],
+        TEXT: [Object],
+        VCARD: [Circular] } },
+  ICAL: 
+   { toString: [Function: toString],
+     name: [Function: toString],
+     toJSON: [Function: toString],
+     ordinal: [Function: ordinal],
+     compareTo: [Function: compareTo],
+     CSV: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Circular],
+        JAVASCRIPT: [Circular],
+        JSON: [Object],
+        TEXT: [Object],
+        VCARD: [Object] },
+     ICAL: [Circular],
+     JAVASCRIPT: [Circular],
+     JSON: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Circular],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Object] },
+     TEXT: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Circular],
+        JAVASCRIPT: [Circular],
+        JSON: [Object],
+        TEXT: [Circular],
+        VCARD: [Object] },
+     VCARD: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Circular],
+        JAVASCRIPT: [Circular],
+        JSON: [Object],
+        TEXT: [Object],
+        VCARD: [Circular] } },
+  JAVASCRIPT: [Circular],
+  JSON: 
+   { toString: [Function: toString],
+     name: [Function: toString],
+     toJSON: [Function: toString],
+     ordinal: [Function: ordinal],
+     compareTo: [Function: compareTo],
+     CSV: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Object] },
+     ICAL: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Circular],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Object] },
+     JAVASCRIPT: [Circular],
+     JSON: [Circular],
+     TEXT: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Circular],
+        VCARD: [Object] },
+     VCARD: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Object],
+        VCARD: [Circular] } },
+  TEXT: 
+   { toString: [Function: toString],
+     name: [Function: toString],
+     toJSON: [Function: toString],
+     ordinal: [Function: ordinal],
+     compareTo: [Function: compareTo],
+     CSV: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Object],
+        TEXT: [Circular],
+        VCARD: [Object] },
+     ICAL: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Circular],
+        JAVASCRIPT: [Circular],
+        JSON: [Object],
+        TEXT: [Circular],
+        VCARD: [Object] },
+     JAVASCRIPT: [Circular],
+     JSON: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Circular],
+        TEXT: [Circular],
+        VCARD: [Object] },
+     TEXT: [Circular],
+     VCARD: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Object],
+        TEXT: [Circular],
+        VCARD: [Circular] } },
+  VCARD: 
+   { toString: [Function: toString],
+     name: [Function: toString],
+     toJSON: [Function: toString],
+     ordinal: [Function: ordinal],
+     compareTo: [Function: compareTo],
+     CSV: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Circular],
+        ICAL: [Object],
+        JAVASCRIPT: [Circular],
+        JSON: [Object],
+        TEXT: [Object],
+        VCARD: [Circular] },
+     ICAL: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function: compareTo],
+        CSV: [Object],
+        ICAL: [Circular],
+        JAVASCRIPT: [Circular],
+        JSON: [Object],
+        TEXT: [Object],
+        VCARD: [Circular] },
+     JAVASCRIPT: [Circular],
+     JSON: 
+      { toString: [Function: toString],
+        name: [Function: toString],
+        toJSON: [Function: toString],
+        ordinal: [Function: ordinal],
+        compareTo: [Function
+22:05:26	Informazioni	🔧 Service Worker content preview: 
+// Service Worker per Campo Don Michele FIORE PWA - Versione Migliorata
+const CACHE_NAME = 'campo-d...
+22:05:26	Informazioni	📋 MIME Type: JAVASCRIPT (expected: JAVASCRIPT) ✅
+22:05:26	Informazioni	📋 Content check: ✅ (contains: Service Worker)
+22:05:26	Informazioni	📋 Content preview: 
+// Service Worker per Campo Don Michele FIORE PWA - Versione Migliorata
+const CACHE_NAME = 'campo-d...
+22:05:26	Informazioni	✅ Test 2 PASSED
+22:05:26	Informazioni	
+🧪 Test 3: Main App Request
+22:05:26	Informazioni	📋 Parametri: {}
+22:05:26	Informazioni	🔍 === DEBUG doGet ===
+22:05:26	Informazioni	🔍 doGet chiamato con parametri: {}
+22:05:26	Informazioni	🔍 Tipo di e.parameter: object
+22:05:26	Informazioni	🔍 e.parameter è null/undefined? false
+22:05:26	Informazioni	🔍 URL completa: {}
+22:05:26	Informazioni	🔍 Chiavi in e.parameter: []
+22:05:26	Informazioni	🔍 Numero di parametri: 0
+22:05:26	Informazioni	🔍 Chiavi disponibili: []
+22:05:26	Informazioni	🛣️ Route finale: app
+22:05:26	Informazioni	🛣️ Route === "manifest": false
+22:05:26	Informazioni	🛣️ Route === "sw": false
+22:05:26	Informazioni	🛣️ Route === "api": false
+22:05:26	Informazioni	🛣️ Route === "app": true
+22:05:26	Informazioni	🏠 Route default - controllando reset password...
+22:05:26	Informazioni	🏠 Servendo pagina principale...
+22:05:26	Informazioni	📁 Inclusione file: style
+22:05:26	Informazioni	📁 Inclusione file: script
+22:05:26	Informazioni	❌ Test 3 ERROR: mainResult.getMimeType is not a function
+22:05:26	Informazioni	
+🧪 Test 4: Fallback SW Request
+22:05:26	Informazioni	📋 Parametri: { sw: 'true' }
+22:05:26	Informazioni	🔍 === DEBUG doGet ===
+22:05:26	Informazioni	🔍 doGet chiamato con parametri: { sw: 'true' }
+22:05:26	Informazioni	🔍 Tipo di e.parameter: object
+22:05:26	Informazioni	🔍 e.parameter è null/undefined? false
+22:05:26	Informazioni	🔍 URL completa: {"sw":"true"}
+22:05:26	Informazioni	🔍 Chiavi in e.parameter: [ 'sw' ]
+22:05:26	Informazioni	🔍 Numero di parametri: 1
+22:05:26	Informazioni	🔍 Parametro sw: true (tipo: string)
+22:05:26	Informazioni	🔍 Chiavi disponibili: [ 'sw' ]
+22:05:26	Informazioni	🔍 Parametro singolo trovato: sw = true
+22:05:26	Informazioni	🛣️ Route finale: app
+22:05:26	Informazioni	🛣️ Route === "manifest": false
+22:05:26	Informazioni	🛣️ Route === "sw": false
+22:05:26	Informazioni	🛣️ Route === "api": false
+22:05:26	Informazioni	🛣️ Route === "app": true
+22:05:26	Informazioni	🏠 Route default - controllando reset password...
+22:05:26	Informazioni	🔧 Fallback Service Worker richiesto...
+22:05:26	Informazioni	📋 MIME Type: JAVASCRIPT (expected: JAVASCRIPT) ✅
+22:05:26	Informazioni	📋 Content check: ✅ (contains: Service Worker)
+22:05:26	Informazioni	📋 Content preview: 
+// Service Worker per Campo Don Michele FIORE PWA - Versione Migliorata
+const CACHE_NAME = 'campo-d...
+22:05:26	Informazioni	✅ Test 4 PASSED
+22:05:26	Informazioni	
+🎯 RISULTATO FINALE: ❌ ALCUNI TEST FALLITI
+22:05:25	Notifica	Esecuzione completata

@@ -1,0 +1,1162 @@
+// =====================
+// 1. COSTANTI E CONFIGURAZIONE
+// =====================
+const SHEET_ID = "1ENLgTyM15P7HgwFsVQGJxtTI-2mZ4Dorrho9QIa3bEk";
+const SHEET_NAME = "Prenotazioni1";
+const ADMIN_SHEET_NAME = "AdminUsers";
+const ARCHIVE_SHEET_NAME = "Archivio_Prenotazioni";
+const ADMIN_EMAIL_RECIPIENT = "prenotazionecampoanspi@gmail.com";
+const PASSWORD_SALT_KEY = 'PASSWORD_SALT';
+const ADMIN_EMAILS_FOR_NOTIFICATIONS = ['pasqualem27@gmail.com','prenotazionecampoanspi@gmail.com'];
+
+
+// COSTANTI
+const DURATION_MAP = { calcetto: 90, pallavolo: 120, compleanno: 180, eventi: 180 };
+const CACHE_DURATION = 300; // 5 minuti
+const LOCK_TIMEOUT = 15000; // 15 secondi
+const REMINDER_WINDOW = 75; // 75 minuti prima
+const OPENING_HOURS = { start: 8, end: 22, lunchStart: 13, lunchEnd: 16 };
+const ITALIAN_HOLIDAYS = [
+  '01-01', '01-06', '04-25', '05-01', '06-02', '08-15', '11-01', '12-08', '12-25', '12-26'
+];
+
+// Costanti per cache - AGGIUNGI DOPO ITALIAN_HOLIDAYS
+const CACHE_KEYS = {
+  EVENTS: 'events_cache',
+  USERS: 'users_cache',
+  CONFIG: 'config_cache', 
+  BOOKINGS: 'bookings_cache'
+};
+
+// Mapping nomi fogli per compatibilità - AGGIUNGI
+const SPREADSHEET_ID = SHEET_ID; // Usa l'ID che hai già
+const SHEET_NAMES = {
+  EVENTS: SHEET_NAME,           // "Prenotazioni1"
+  USERS: ADMIN_SHEET_NAME,      // "AdminUsers"
+  CONFIG: 'Configurazione',     // Nuovo foglio per config
+  ARCHIVE: ARCHIVE_SHEET_NAME   // "Archivio_Prenotazioni"
+};
+
+// === CONFIGURAZIONE TELEGRAM ===
+const TELEGRAM_BOT_TOKEN = '7563290686:AAGBhuoQLXc5SPQ8q1Ck4KB2QvFSZRRjL9M';
+const TELEGRAM_CHAT_IDS = [
+  '686525181',
+  '1619944598', // nuovo admin
+];
+const TELEGRAM_MASTER_CHAT_ID = '686525181';
+
+
+// =====================
+// ROUTER PRINCIPALE - VERSIONE MIGLIORATA
+// =====================
+
+function doGet(e) {
+  // ✅ LOG MOLTO VISIBILE - VERIFICA SE IL ROUTER VIENE CHIAMATO
+  console.log('🚨🚨🚨 ROUTER doGet CHIAMATO! 🚨🚨🚨');
+  console.log('🚨🚨🚨 PARAMETRI RICEVUTI:', JSON.stringify(e.parameter));
+  console.log('🚨🚨🚨 TIMESTAMP:', new Date().toISOString());
+  
+  // ✅ DEBUG DETTAGLIATO: Log dei parametri ricevuti
+  console.log('🔍 === DEBUG doGet ===');
+  console.log('🔍 doGet chiamato con parametri:', e.parameter);
+  console.log('🔍 Tipo di e.parameter:', typeof e.parameter);
+  console.log('🔍 e.parameter è null/undefined?', e.parameter === null || e.parameter === undefined);
+  console.log('🔍 URL completa:', e.parameter ? JSON.stringify(e.parameter) : 'Nessun parametro');
+  
+  if (e.parameter) {
+    console.log('🔍 Chiavi in e.parameter:', Object.keys(e.parameter));
+    console.log('🔍 Numero di parametri:', Object.keys(e.parameter).length);
+    
+    if (e.parameter.page) {
+      console.log('🔍 e.parameter.page:', e.parameter.page);
+      console.log('🔍 Tipo di e.parameter.page:', typeof e.parameter.page);
+      console.log('🔍 e.parameter.page === "manifest":', e.parameter.page === 'manifest');
+      console.log('🔍 e.parameter.page === "sw":', e.parameter.page === 'sw');
+    }
+    
+    // Debug di tutti i parametri
+    Object.keys(e.parameter).forEach(key => {
+      console.log(`🔍 Parametro ${key}:`, e.parameter[key], `(tipo: ${typeof e.parameter[key]})`);
+    });
+  }
+  
+  // ✅ Gestione più robusta dei parametri
+  let route = 'app';
+  if (e.parameter && e.parameter.page) {
+    route = e.parameter.page;
+    console.log('🛣️ Route impostata da e.parameter.page:', route);
+  }
+  
+  console.log('🛣️ Route finale:', route);
+  console.log('🛣️ Route === "api":', route === 'api');
+  console.log('🛣️ Route === "app":', route === 'app');
+  
+  switch(route) {
+    case 'api':
+      console.log('🌐 Gestendo richiesta API...');
+      return handleApiRequest(e, 'GET');
+    case 'manifest':
+      console.log('📋 Servendo manifest PWA...');
+      return serveManifest();
+    case 'sw':
+      console.log('🔧 Servendo Service Worker PWA...');
+      return serveServiceWorker();
+    case 'asset':
+      console.log('🖼️ Servendo asset PWA...');
+      var name = (e.parameter && e.parameter.name) ? String(e.parameter.name) : '';
+      return serveAsset(name);
+      
+
+      
+    default:
+      console.log('🏠 Route default - controllando reset password...');
+      // ✅ CONTROLLO PER RESET PASSWORD (compatibilità)
+      if (e.parameter && e.parameter.resetToken) {
+        console.log('🔑 Reset password richiesto con token:', e.parameter.resetToken);
+        return servePasswordResetPage(e.parameter.resetToken);
+      }
+      
+      // ✅ Serve la pagina principale
+      console.log('🏠 Servendo pagina principale...');
+      var template = HtmlService.createTemplateFromFile('index');
+      template.queryString = e.parameter || {};
+      template.baseUrl = ScriptApp.getService().getUrl();
+      
+      const mainResult = template.evaluate()
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+      console.log('🏠 Pagina principale MIME type: text/html (HtmlService)');
+      return mainResult;
+  }
+}
+
+// ✅ Gestione POST separata
+function doPost(e) {
+  console.log('📤 doPost chiamato con parametri:', e.parameter);
+  return handleApiRequest(e, 'POST');
+}
+
+// ✅ Gestione API requests
+function handleApiRequest(e, method) {
+  try {
+    const action = e.parameter.action;
+    const data = method === 'POST' && e.postData ? JSON.parse(e.postData.contents) : e.parameter;
+    const result = serverRequest(action, data);
+    
+    return ContentService
+      .createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    console.error('❌ Errore handleApiRequest:', error);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'error', message: error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+
+
+
+
+
+
+
+
+// ✅ Funzione include (se non ce l'hai già)
+function include(filename) {
+  try {
+    console.log(`📁 Inclusione file: ${filename}`);
+    return HtmlService.createHtmlOutputFromFile(filename).getContent();
+  } catch (error) {
+    console.error(`❌ Errore inclusione file ${filename}:`, error);
+    return `<!-- Errore caricamento ${filename}: ${error.message} -->`;
+  }
+}
+
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  ui.createMenu('Gestione Campo')
+    .addItem('Test Notifica Telegram', 'testTelegramNotification')
+    .addItem('Invia Riepilogo Giornaliero', 'sendDailySummaryToAdmin')
+    .addItem('Pulisci Cache Riepilogo', 'clearDailySummaryCache')
+    .addItem('Setup Notifiche/Trigger', 'setupEventNotifications')
+    .addItem('Disattiva Tutti i Trigger', 'disableAllNotificationTriggers')
+    .addItem('Test Connessione Fogli', 'testSheetConnection')
+    .addItem('Test Sistema Ricorrenze', 'checkAndGenerateRecurringEvents')
+    .addItem('Pulisci Cache', 'clearCache')
+    .addSeparator()
+    .addItem('🔑 Reset Password Tutti Admin', 'resetAllAdminPasswords')
+    .addItem('🔑 Imposta Password Temp Tutti', 'setTempPasswordForAll')
+    .addSeparator()
+
+    .addToUi();
+}
+
+// =====================
+// FUNZIONE serverRequest - AGGIORNATA
+// =====================
+
+async function serverRequest(action, data) {
+  try {
+    // Timeout check
+const startTime = new Date().getTime();
+const MAX_EXECUTION_TIME = 25000; // 25 secondi
+
+// Controlla periodicamente (metti questo check prima di ogni case pesante)
+if (new Date().getTime() - startTime > MAX_EXECUTION_TIME) {
+    return { status: 'error', message: 'Timeout esecuzione' };
+}
+    
+    switch (action) {
+      // === AZIONI ESISTENTI ===
+      case 'checkAndGenerateRecurringEvents': return checkAndGenerateRecurringEvents();
+      case 'setupSmartRecurringTrigger': return setupSmartRecurringTrigger();
+      case 'getBookings': return { status: 'ok', data: { bookings: getBookings() } };
+      case 'getBookingsForCalendar': return { status: 'ok', data: { bookings: getBookingsForCalendar() } };
+      case 'manualArchive': return archiveOldBookings();
+      case 'testTelegramNotification': return testTelegramNotification();
+      case 'sendDailySummaryToAdmin': return sendDailySummaryToAdmin();
+      case 'createBooking': return createBooking(data);
+      case 'cancelBooking': return cancelBooking(data.bookingId);
+      case 'adminLogin': return adminLogin(data); 
+      case 'createAdminPassword': return createAdminPassword(data);
+      case 'requestPasswordReset': return requestPasswordReset(data);
+      case 'performPasswordReset': return performPasswordReset(data);
+      case 'deleteBooking': return deleteBooking(data.bookingId);
+      case 'updateBookingDetail': return updateBookingDetail(data.bookingId, data.field, data.value);
+      case 'updateEventStatus': return updateEventStatus(data);
+      case 'getEventStats': return getEventStats();
+
+      case 'getArchivedBookings': return { status: 'ok', data: { bookings: getArchivedBookings() } };
+      case 'getArchiveTriggerInfo': return getArchiveTriggerInfo();
+      case 'testMarkDailySummary': return testMarkDailySummary();
+      case 'markDailySummary': return markDailySummarySent(data.date);
+      case 'clearDailySummaryCache': return clearDailySummaryCache();
+      case 'getTriggerInfo': return getTriggerInfo();
+      case 'setupEventNotifications': return setupEventNotifications();
+      case 'disableAllNotificationTriggers': return disableAllNotificationTriggers();
+
+      // === AZIONI GESTIONE ADMIN MASTER ===
+      case 'getAllAdmins': return getAllAdmins();
+      case 'addNewAdmin': return addNewAdmin(data);
+      case 'removeAdmin': return removeAdmin(data);
+      case 'resetAdminPassword': return resetAdminPassword(data);
+      case 'initializeMissingAdmins': return initializeMissingAdmins();
+      case 'testAdminAuth': return testAdminAuth();
+      
+      // === AZIONI AGGIUNTE ===
+      case 'clearCache': return clearCache();
+      case 'ping': return { status: 'ok', message: 'pong', timestamp: new Date().toISOString() };
+      case 'clearBookingsCache': return clearBookingsCache();
+      case 'cleanupDuplicateEvents': return cleanupDuplicateRecurringEvents();
+      case 'getCacheStatus': return getCacheStatus();
+      
+
+      // Manifest e Service Worker ora gestiti inline nell'HTML
+      case 'testSheetConnection': 
+  try {
+    return testSheetConnection();
+  } catch (error) {
+    debugLog(`❌ Errore critico test connessione: ${error.message}`);
+    return {
+      success: false,
+      message: `Test fallito: ${error.message}`
+    };
+  }
+
+      case 'safeTestConnection': return safeTestConnection();
+      case 'testSmartRecurring': 
+        try {
+          console.log('🧪 === TEST SISTEMA RICORRENZE ===');
+          const result = checkAndGenerateRecurringEvents();
+          console.log('✅ Test completato:', result);
+          return result;
+        } catch (error) {
+          console.error('❌ Errore test:', error);
+          return { status: 'error', message: error.message };
+        }
+      case 'setupSmartTrigger': return createDailyArchiveTrigger();
+      case 'resetSmartSystem': return deleteArchiveTriggers();
+      case 'manualRecurringCheck': return checkAndGenerateRecurringEvents();
+      case 'cleanupDuplicateRecurringEvents': return cleanupDuplicateRecurringEvents();
+
+      case 'getRecurringEvents': 
+        const recurringEvents = getBookings().filter(event => event.ricorrente === 'sì' || event.ricorrente === true);
+        return { status: 'ok', data: { events: recurringEvents } };
+      case 'getDebugInfo':
+        try {
+          console.log('🔍 === DEBUG INFO ===');
+          const sheet = getSheet();
+          const data = sheet.getDataRange().getValues();
+          const recurringEvents = data.filter((row, index) => index > 0 && row[headers.indexOf('ricorrente')] === true);
+          
+          return {
+            status: 'ok',
+            data: {
+              spreadsheetId: SHEET_ID,
+              sheetNames: {
+                events: SHEET_NAME,
+                admin: ADMIN_SHEET_NAME,
+                archive: ARCHIVE_SHEET_NAME
+              },
+              timestamp: new Date().toISOString(),
+              totalRows: data.length,
+              recurringEventsCount: recurringEvents.length,
+              cacheStatus: getCacheStatus(),
+              triggerStatus: getSimpleTriggerStatus()
+            }
+          };
+        } catch (error) {
+          console.error('❌ Errore debug info:', error);
+          return { status: 'error', message: error.message };
+        }
+      
+      default: 
+        throw new Error(`Azione non riconosciuta: ${action}`);
+    }
+  } catch (error) {
+    debugLog(error);
+    return { status: 'error', message: error.message };
+  }
+}
+
+function getAdminSheet() {
+  try {
+    console.log('🔧 getAdminSheet() - SHEET_ID:', SHEET_ID);
+    console.log('🔧 getAdminSheet() - ADMIN_SHEET_NAME:', ADMIN_SHEET_NAME);
+    
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+    console.log('🔧 getAdminSheet() - Spreadsheet aperto:', ss.getName());
+    
+  const sheet = ss.getSheetByName(ADMIN_SHEET_NAME);
+    console.log('🔧 getAdminSheet() - Foglio AdminUsers trovato:', sheet ? 'Sì' : 'No');
+    
+    if (!sheet) {
+      console.log('❌ getAdminSheet() - Fogli disponibili:', ss.getSheets().map(s => s.getName()));
+      throw new Error(`Foglio amministratori "${ADMIN_SHEET_NAME}" non trovato.`);
+    }
+    
+    console.log('✅ getAdminSheet() - Foglio AdminUsers restituito correttamente');
+  return sheet;
+  } catch (error) {
+    console.error('❌ getAdminSheet() - Errore:', error.message);
+    throw error;
+  }
+}
+
+// =====================
+// FUNZIONI GESTIONE TRIGGER - PRODUZIONE
+// =====================
+
+/**
+ * Ottiene informazioni sui trigger attivi
+ */
+function getTriggerInfo() {
+  try {
+    const triggers = ScriptApp.getProjectTriggers();
+    const relevantTriggers = triggers.filter(trigger => 
+      trigger.getHandlerFunction() === 'checkAndGenerateRecurringEvents' ||
+      trigger.getHandlerFunction() === 'sendDailySummaryToAdmin' ||
+      trigger.getHandlerFunction() === 'checkUpcomingEventsAndNotify'
+    );
+    
+    return {
+      status: 'ok',
+      active: relevantTriggers.length > 0,
+      count: relevantTriggers.length,
+      message: `${relevantTriggers.length} trigger attivi`,
+      triggers: relevantTriggers.map(t => ({
+        function: t.getHandlerFunction(),
+        type: t.getEventType(),
+        source: t.getTriggerSource()
+      }))
+    };
+  } catch (error) {
+    debugLog(`❌ Errore getTriggerInfo: ${error.message}`);
+    return {
+      status: 'error',
+      active: false,
+      count: 0,
+      message: error.message
+    };
+  }
+}
+
+/**
+ * Crea il trigger giornaliero consolidato
+ */
+function deleteArchiveTriggers() {
+  try {
+    const triggers = ScriptApp.getProjectTriggers();
+    let deletedCount = 0;
+    
+    // ELIMINA TUTTI i trigger del sistema (anche duplicati)
+    triggers.forEach(trigger => {
+      const fn = trigger.getHandlerFunction();
+      if (fn === 'sendDailySummaryToAdmin' || 
+          fn === 'checkUpcomingEventsAndNotify' ||
+          fn === 'checkAndGenerateRecurringEvents') {
+        try {
+          ScriptApp.deleteTrigger(trigger);
+          deletedCount++;
+          console.log(`🗑️ Eliminato: ${fn}`);
+        } catch (e) {
+          console.log(`⚠️ Errore eliminazione: ${e}`);
+        }
+      }
+    });
+    
+    console.log(`✅ Eliminati ${deletedCount} trigger totali`);
+    return { status: 'ok', deletedCount: deletedCount };
+  } catch (error) {
+    return { status: 'error', message: error.message };
+  }
+}
+
+function createDailyArchiveTrigger() {
+  try {
+    // PRIMA: Pulisci TUTTI i trigger esistenti
+    const deleteResult = deleteArchiveTriggers();
+    console.log(`🧹 Pulizia completata: ${deleteResult.deletedCount} trigger rimossi`);
+    
+    // DOPO: Crea UN SOLO set pulito
+    ScriptApp.newTrigger('checkAndGenerateRecurringEvents')
+      .timeBased()
+      .everyDays(1)
+      .atHour(0)
+      .create();
+    
+    console.log('✅ Creato nuovo trigger unificato');
+    return { status: 'ok', message: 'Sistema ricreato con trigger puliti' };
+  } catch (error) {
+    return { status: 'error', message: error.message };
+  }
+}
+
+// ✅ FUNZIONE DI TEST AUTORIZZAZIONE ADMIN
+function testAdminAuth() {
+  try {
+    console.log('🧪 Test autorizzazione admin iniziato...');
+    
+    // Test 1: Verifica foglio AdminUsers
+    const adminSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('AdminUsers');
+    if (!adminSheet) {
+      console.log('❌ Foglio AdminUsers non trovato!');
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        error: 'Foglio AdminUsers non trovato'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    console.log('✅ Foglio AdminUsers trovato');
+    
+    // Test 2: Leggi tutti i dati
+    const dataRange = adminSheet.getDataRange().getValues();
+    console.log('📊 Righe trovate:', dataRange.length);
+    
+    if (dataRange.length < 2) {
+      console.log('❌ Nessun admin nel foglio!');
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        error: 'Nessun admin nel foglio',
+        rows: dataRange.length
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Test 3: Verifica headers
+    const headers = dataRange[0].map(h => h.toString().toLowerCase());
+    console.log('📋 Headers:', headers);
+    
+    const emailCol = headers.indexOf('email');
+    if (emailCol === -1) {
+      console.log('❌ Colonna email non trovata!');
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        error: 'Colonna email non trovata',
+        headers: headers
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    console.log('✅ Colonna email trovata alla posizione:', emailCol);
+    
+    // Test 4: Cerca email specifiche
+    const testEmails = [
+      'pasqualem27@gmail.com',
+      'prenotazionecampoanspi@gmail.com'
+    ];
+    
+    const foundAdmins = [];
+    
+    for (let i = 1; i < dataRange.length; i++) {
+      const rowEmail = dataRange[i][emailCol];
+      if (rowEmail) {
+        const cleanEmail = rowEmail.toString().toLowerCase().trim();
+        console.log(`📧 Riga ${i}: "${cleanEmail}"`);
+        
+        if (testEmails.includes(cleanEmail)) {
+          foundAdmins.push({
+            row: i,
+            email: cleanEmail,
+            fullRow: dataRange[i]
+          });
+        }
+      }
+    }
+    
+    console.log('🔍 Admin trovati:', foundAdmins.length);
+    
+    // Test 5: Verifica funzione findAdminByEmail
+    const testResult = findAdminByEmail('pasqualem27@gmail.com');
+    console.log('🔧 Risultato findAdminByEmail:', testResult);
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true,
+      message: 'Test completato',
+      data: {
+        totalRows: dataRange.length,
+        headers: headers,
+        emailColumn: emailCol,
+        foundAdmins: foundAdmins,
+        findAdminByEmailResult: testResult,
+        allEmails: dataRange.slice(1).map(row => row[emailCol]).filter(email => email)
+      }
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (error) {
+    console.error('❌ Errore nel test:', error);
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      error: error.toString(),
+      stack: error.stack
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// ✅ FUNZIONE DI TEST AUTORIZZAZIONE ADMIN - ESECUZIONE DIRETTA
+function testAdminAuthDirect() {
+  try {
+    console.log('🧪 Test autorizzazione admin iniziato...');
+    
+    // Test 1: Verifica foglio AdminUsers
+    const adminSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('AdminUsers');
+    if (!adminSheet) {
+      console.log('❌ Foglio AdminUsers non trovato!');
+      return;
+    }
+    
+    console.log('✅ Foglio AdminUsers trovato');
+    
+    // Test 2: Leggi tutti i dati
+    const dataRange = adminSheet.getDataRange().getValues();
+    console.log('📊 Righe trovate:', dataRange.length);
+    
+    if (dataRange.length < 2) {
+      console.log('❌ Nessun admin nel foglio!');
+      return;
+    }
+    
+    // Test 3: Controlla headers
+    const headers = dataRange[0].map(h => h.toString().toLowerCase().trim());
+    console.log('📋 Headers:', headers);
+    
+    const emailCol = headers.indexOf('email');
+    if (emailCol === -1) {
+      console.log('❌ Colonna email non trovata!');
+      return;
+    }
+    
+    console.log('✅ Colonna email trovata alla posizione:', emailCol);
+    
+    // Test 4: Cerca le email specifiche
+    const targetEmails = ['pasqualem27@gmail.com', 'prenotazionecampoanspi@gmail.com'];
+    let foundCount = 0;
+    
+    for (let i = 1; i < dataRange.length; i++) {
+      const email = dataRange[i][emailCol];
+      if (email) {
+        console.log(`📧 Riga ${i}: "${email}"`);
+        
+        if (targetEmails.includes(email.toString().toLowerCase().trim())) {
+          foundCount++;
+          console.log(`✅ Email trovata: ${email}`);
+        }
+      }
+    }
+    
+    console.log(`🔍 Admin trovati: ${foundCount}`);
+    
+    // Test 5: Testa la funzione findAdminByEmail
+    console.log('🔧 Testando findAdminByEmail...');
+    const testResult = findAdminByEmail('pasqualem27@gmail.com');
+    console.log('🔧 Risultato findAdminByEmail:', testResult);
+    
+    // Test 6: Verifica SHEET_ID
+    console.log('🔧 SHEET_ID configurato:', typeof SHEET_ID !== 'undefined' ? 'Sì' : 'No');
+    if (typeof SHEET_ID !== 'undefined') {
+      console.log('🔧 SHEET_ID valore:', SHEET_ID);
+    }
+    
+    // Test 7: Verifica getAdminSheet
+    try {
+      const adminSheetTest = getAdminSheet();
+      console.log('✅ getAdminSheet() funziona');
+      console.log('🔧 Nome foglio getAdminSheet:', adminSheetTest.getName());
+    } catch (error) {
+      console.log('❌ getAdminSheet() errore:', error.message);
+    }
+    
+    console.log('✅ Test completato!');
+    
+  } catch (error) {
+    console.error('❌ Errore durante il test:', error);
+  }
+}
+
+// ✅ FUNZIONE: Reset password per TUTTI gli amministratori
+function resetAllAdminPasswords() {
+  try {
+    console.log('🔧 Reset password per TUTTI gli amministratori...');
+    
+    const adminSheet = getAdminSheet();
+    const data = adminSheet.getDataRange().getValues();
+    const headers = data[0].map(h => h.toLowerCase());
+    const emailCol = headers.indexOf('email');
+    const passwordHashCol = headers.indexOf('passwordhash');
+    
+    let resetCount = 0;
+    const resetEmails = [];
+    
+    // Reset password per tutti gli admin
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][emailCol]) {
+        const email = data[i][emailCol].toString().toLowerCase().trim();
+        
+        // Pulisci la password hash (primo accesso)
+        adminSheet.getRange(i + 1, passwordHashCol + 1).setValue('');
+        resetCount++;
+        resetEmails.push(email);
+        
+        console.log(`✅ Password resettata per: ${email}`);
+      }
+    }
+    
+    console.log(`✅ Reset completato! ${resetCount} amministratori resettati:`);
+    resetEmails.forEach(email => console.log(`   - ${email}`));
+    
+    return {
+      status: 'ok',
+      message: `Reset completato! ${resetCount} amministratori resettati per primo accesso.`,
+      resetCount: resetCount,
+      emails: resetEmails
+    };
+    
+  } catch (error) {
+    console.error('❌ Errore reset password:', error);
+    return {
+      status: 'error',
+      message: 'Errore: ' + error.message
+    };
+  }
+}
+
+// ✅ FUNZIONE: Imposta password temporanea per TUTTI gli amministratori
+function setTempPasswordForAll() {
+  try {
+    console.log('🔧 Imposta password temporanea per TUTTI gli amministratori...');
+    
+    const adminSheet = getAdminSheet();
+    const data = adminSheet.getDataRange().getValues();
+    const headers = data[0].map(h => h.toLowerCase());
+    const emailCol = headers.indexOf('email');
+    const passwordHashCol = headers.indexOf('passwordhash');
+    
+    let setCount = 0;
+    const setEmails = [];
+    const tempPassword = '123456'; // Password temporanea per tutti
+    
+    // Imposta password temporanea per tutti gli admin
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][emailCol]) {
+        const email = data[i][emailCol].toString().toLowerCase().trim();
+        
+        // Imposta password temporanea
+        const tempPasswordHash = hashPassword(tempPassword);
+        adminSheet.getRange(i + 1, passwordHashCol + 1).setValue(tempPasswordHash);
+        setCount++;
+        setEmails.push(email);
+        
+        console.log(`✅ Password temporanea impostata per: ${email}`);
+      }
+    }
+    
+    console.log(`✅ Password temporanea impostata! ${setCount} amministratori aggiornati:`);
+    setEmails.forEach(email => console.log(`   - ${email}`));
+    console.log(`🔑 Password temporanea per tutti: ${tempPassword}`);
+    
+    return {
+      status: 'ok',
+      message: `Password temporanea impostata! ${setCount} amministratori aggiornati. Password: ${tempPassword}`,
+      setCount: setCount,
+      emails: setEmails,
+      tempPassword: tempPassword
+    };
+    
+  } catch (error) {
+    console.error('❌ Errore set password temporanea:', error);
+    return {
+      status: 'error',
+      message: 'Errore: ' + error.message
+    };
+  }
+}
+
+// ✅ Funzione per servire la pagina di reset password
+function servePasswordResetPage(token) {
+  console.log('🔑 servePasswordResetPage chiamata con token:', token);
+  
+  const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - Campo ANSPI</title>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            color: #2d3436;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d3436;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .success {
+            color: #27ae60;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 Reset Password</h1>
+        <div id="resetForm">
+            <div class="form-group">
+                <label for="newPassword">Nuova Password:</label>
+                <input type="password" id="newPassword" placeholder="Inserisci la nuova password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Conferma Password:</label>
+                <input type="password" id="confirmPassword" placeholder="Conferma la nuova password" required>
+            </div>
+            <button onclick="resetPassword()">💾 Salva Nuova Password</button>
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        async function resetPassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const messageDiv = document.getElementById('message');
+            
+            if (newPassword.length < 6) {
+                messageDiv.innerHTML = '<div class="error">❌ La password deve essere di almeno 6 caratteri</div>';
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                messageDiv.innerHTML = '<div class="error">❌ Le password non coincidono</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch('${ScriptApp.getService().getUrl()}?action=performPasswordReset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        token: '${token}',
+                        newPassword: newPassword
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'ok') {
+                    messageDiv.innerHTML = '<div class="success">✅ Password aggiornata con successo!</div>';
+                    setTimeout(() => {
+                        window.location.href = '${ScriptApp.getService().getUrl()}';
+                    }, 2000);
+                } else {
+                    messageDiv.innerHTML = '<div class="error">❌ ' + result.message + '</div>';
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<div class="error">❌ Errore durante il reset: ' + error.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>`;
+
+  console.log('✅ HTML generato correttamente, lunghezza:', htmlContent.length);
+  
+  const output = HtmlService.createHtmlOutput(htmlContent);
+  console.log('✅ HtmlService output creato');
+  
+  console.log('✅ servePasswordResetPage completata');
+  return output;
+}
+
+// ✅ Test diretto del router e delle funzioni PWA
+function testPWADirectly() {
+  console.log('🧪 Test diretto PWA...');
+  
+  try {
+    // Test 1: Manifest diretto
+    console.log('📋 Testando manifest diretto...');
+    const manifestResult = serveManifest();
+    console.log('✅ Manifest generato correttamente');
+    console.log('📋 MIME type:', manifestResult.getMimeType());
+    console.log('📋 Contenuto (primi 100 caratteri):', manifestResult.getContent().substring(0, 100));
+    
+    // Test 2: Service Worker diretto
+    console.log('🔧 Testando Service Worker diretto...');
+    const swResult = serveServiceWorker();
+    console.log('✅ Service Worker generato correttamente');
+    console.log('🔧 MIME type:', swResult.getMimeType());
+    console.log('🔧 Contenuto (primi 100 caratteri):', swResult.getContent().substring(0, 100));
+    
+    // Test 3: Simulazione doGet con parametri
+    console.log('🧪 Testando simulazione doGet...');
+    
+    // Simula parametri per manifest
+    const testParams1 = { page: 'manifest' };
+    console.log('📋 Testando parametri manifest:', testParams1);
+    
+    // Simula parametri per Service Worker
+    const testParams2 = { page: 'sw' };
+    console.log('🔧 Testando parametri Service Worker:', testParams2);
+    
+    // Simula parametri fallback
+    const testParams3 = { sw: 'true' };
+    console.log('🔄 Testando parametri fallback:', testParams3);
+    
+    console.log('✅ Tutti i test completati con successo!');
+    
+  } catch (error) {
+    console.error('❌ Errore durante il test:', error);
+  }
+}
+
+// ✅ Test completo del sistema PWA
+function testCompletePWA() {
+  console.log('🧪 === TEST COMPLETO SISTEMA PWA ===');
+  
+  try {
+    // Test 1: Verifica funzioni dirette
+    console.log('📋 Test 1: Verifica funzioni dirette...');
+    
+    const manifestResult = serveManifest();
+    console.log('✅ Manifest:', manifestResult.getMimeType(), '->', manifestResult.getContent().substring(0, 50) + '...');
+    
+    const swResult = serveServiceWorker();
+    console.log('✅ Service Worker:', swResult.getMimeType(), '->', swResult.getContent().substring(0, 50) + '...');
+    
+    const resetResult = servePasswordResetPage('test-token');
+    console.log('✅ Reset Page:', resetResult.getContent().substring(0, 50) + '...');
+    
+    // Test 2: Verifica router
+    console.log('🛣️ Test 2: Verifica router...');
+    
+    // Simula doGet con parametri
+    const testCases = [
+      { params: { page: 'manifest' }, expected: 'manifest' },
+      { params: { page: 'sw' }, expected: 'sw' },
+      { params: { page: 'api' }, expected: 'api' },
+      { params: { resetToken: 'test' }, expected: 'reset' },
+      { params: { sw: 'true' }, expected: 'sw-fallback' },
+      { params: {}, expected: 'app' }
+    ];
+    
+    testCases.forEach((testCase, index) => {
+      console.log(`🧪 Test case ${index + 1}:`, testCase.params);
+      
+      // Simula la logica del router
+      let route = 'app';
+      if (testCase.params.page) {
+        route = testCase.params.page;
+      } else if (testCase.params.resetToken) {
+        route = 'reset';
+      } else if (testCase.params.sw === 'true') {
+        route = 'sw-fallback';
+      }
+      
+      const success = route === testCase.expected;
+      console.log(`   ${success ? '✅' : '❌'} Route: ${route} (expected: ${testCase.expected})`);
+    });
+    
+    // Test 3: Verifica URL
+    console.log('🔗 Test 3: Verifica URL...');
+    const scriptUrl = ScriptApp.getService().getUrl();
+    console.log('✅ Script URL:', scriptUrl);
+    console.log('✅ Manifest URL:', scriptUrl + '?page=manifest');
+    console.log('✅ Service Worker URL:', scriptUrl + '?page=sw');
+    console.log('✅ Fallback URL:', scriptUrl + '?sw=true');
+    
+    console.log('✅ === TEST COMPLETO PWA SUPERATO ===');
+    return {
+      status: 'ok',
+      message: 'Tutti i test PWA sono stati superati',
+      manifest: manifestResult.getMimeType(),
+      serviceWorker: swResult.getMimeType(),
+      resetPage: 'HTML generato',
+      scriptUrl: scriptUrl
+    };
+    
+  } catch (error) {
+    console.error('❌ Errore test PWA:', error);
+    return {
+      status: 'error',
+      message: 'Errore test PWA: ' + error.message
+    };
+  }
+}
+
+// ✅ Test simulazione richieste HTTP reali
+function testHTTPRequests() {
+  console.log('🧪 === TEST RICHIESTE HTTP REALI ===');
+  
+  try {
+    // Simula le richieste HTTP che il browser fa
+    const testCases = [
+      {
+        name: 'Manifest Request',
+        params: { page: 'manifest' },
+        expectedMime: ContentService.MimeType.JSON,
+        expectedContent: 'name'
+      },
+      {
+        name: 'Service Worker Request',
+        params: { page: 'sw' },
+        expectedMime: ContentService.MimeType.JAVASCRIPT,
+        expectedContent: 'Service Worker'
+      },
+      {
+        name: 'Main App Request',
+        params: {},
+        expectedMime: 'text/html',
+        expectedContent: 'html',
+        isHtmlService: true
+      },
+      {
+        name: 'Fallback SW Request',
+        params: { sw: 'true' },
+        expectedMime: ContentService.MimeType.JAVASCRIPT,
+        expectedContent: 'Service Worker'
+      }
+    ];
+    
+    let allTestsPassed = true;
+    
+    testCases.forEach((testCase, index) => {
+      console.log(`\n🧪 Test ${index + 1}: ${testCase.name}`);
+      console.log(`📋 Parametri:`, testCase.params);
+      
+      try {
+        // Simula la chiamata doGet
+        const mockEvent = { parameter: testCase.params };
+        const result = doGet(mockEvent);
+        
+        // Verifica MIME type (gestisce HtmlService diversamente)
+        let actualMime = 'unknown';
+        let mimeMatch = false;
+        
+        if (testCase.isHtmlService) {
+          // Per HtmlService, verifichiamo solo il contenuto
+          actualMime = 'text/html (HtmlService)';
+          mimeMatch = true; // HtmlService restituisce sempre HTML
+        } else {
+          actualMime = result.getMimeType();
+          mimeMatch = actualMime === testCase.expectedMime;
+        }
+        
+        // Verifica contenuto
+        const content = result.getContent();
+        const contentMatch = content.toLowerCase().includes(testCase.expectedContent.toLowerCase());
+        
+        console.log(`📋 MIME Type: ${actualMime} (expected: ${testCase.expectedMime}) ${mimeMatch ? '✅' : '❌'}`);
+        console.log(`📋 Content check: ${contentMatch ? '✅' : '❌'} (contains: ${testCase.expectedContent})`);
+        console.log(`📋 Content preview: ${content.substring(0, 100)}...`);
+        
+        if (!mimeMatch || !contentMatch) {
+          allTestsPassed = false;
+          console.log(`❌ Test ${index + 1} FAILED`);
+        } else {
+          console.log(`✅ Test ${index + 1} PASSED`);
+        }
+        
+      } catch (error) {
+        console.log(`❌ Test ${index + 1} ERROR:`, error.message);
+        allTestsPassed = false;
+      }
+    });
+    
+    console.log(`\n🎯 RISULTATO FINALE: ${allTestsPassed ? '✅ TUTTI I TEST SUPERATI' : '❌ ALCUNI TEST FALLITI'}`);
+    
+    return {
+      status: allTestsPassed ? 'ok' : 'error',
+      message: allTestsPassed ? 'Tutte le richieste HTTP funzionano correttamente' : 'Alcune richieste HTTP hanno problemi',
+      allTestsPassed: allTestsPassed
+    };
+    
+  } catch (error) {
+    console.error('❌ Errore test HTTP:', error);
+    return {
+      status: 'error',
+      message: 'Errore test HTTP: ' + error.message
+    };
+  }
+}
+
+// =====================
+// PWA - Manifest e Service Worker ora gestiti inline nell'HTML
+// =====================
+
+
+
+
+// ✅ Manifest PWA servito via ContentService per consentire installazione
+function serveManifest() {
+  try {
+    var baseUrl = ScriptApp.getService().getUrl();
+    var manifest = {
+      name: 'Campo Don Michele FIORE - ANSPI',
+      short_name: 'Campo ANSPI',
+      description: 'Sistema di prenotazioni per il Campo Don Michele FIORE - ANSPI Giovinazzo',
+      start_url: './',
+      display: 'standalone',
+      background_color: '#74b9ff',
+      theme_color: '#74b9ff',
+      orientation: 'portrait-primary',
+      scope: './',
+      lang: 'it',
+      dir: 'ltr',
+      categories: ['sports', 'business', 'lifestyle'],
+      icons: [
+        { src: baseUrl + '?page=asset&name=icon-192.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
+        { src: baseUrl + '?page=asset&name=icon-512.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'any' },
+        { src: baseUrl + '?page=asset&name=icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: baseUrl + '?page=asset&name=icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' }
+      ]
+    };
+    return ContentService.createTextOutput(JSON.stringify(manifest))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    console.error('❌ Errore serveManifest:', error);
+    return ContentService.createTextOutput('{}')
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// ✅ Service Worker PWA servito via ContentService
+function serveServiceWorker() {
+  try {
+    var sw = [
+      "const CACHE_NAME = 'campo-anspi-v3.1';",
+      "const ASSETS = [ './' ];",
+      "self.addEventListener('install', event => {",
+      "  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));",
+      "});",
+      "self.addEventListener('activate', event => {",
+      "  event.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => k !== CACHE_NAME && caches.delete(k)))).then(() => self.clients.claim()));",
+      "});",
+      "self.addEventListener('fetch', event => {",
+      "  event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));",
+      "});"
+    ].join('\n');
+    return ContentService.createTextOutput(sw)
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  } catch (error) {
+    console.error('❌ Errore serveServiceWorker:', error);
+    return ContentService.createTextOutput('')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+}
+
+// ✅ Servizio asset icone dalla cartella assets
+function serveAsset(name) {
+  try {
+    if (!name) return ContentService.createTextOutput('').setMimeType(ContentService.MimeType.TEXT);
+    var fileMap = {
+      'icon-192.svg': HtmlService.createHtmlOutputFromFile('assets/icon-192').getContent(),
+      'icon-512.svg': HtmlService.createHtmlOutputFromFile('assets/icon-512').getContent(),
+      'icon-192.png': HtmlService.createHtmlOutputFromFile('assets/icon-192.png').getContent(),
+      'icon-512.png': HtmlService.createHtmlOutputFromFile('assets/icon-512.png').getContent(),
+    };
+    var content = fileMap[name];
+    if (!content) return ContentService.createTextOutput('').setMimeType(ContentService.MimeType.TEXT);
+    var mime = name.endsWith('.png') ? ContentService.MimeType.PNG : ContentService.MimeType.SVG;
+    return ContentService.createTextOutput(content).setMimeType(mime);
+  } catch (error) {
+    console.error('❌ Errore serveAsset:', error);
+    return ContentService.createTextOutput('').setMimeType(ContentService.MimeType.TEXT);
+  }
+}

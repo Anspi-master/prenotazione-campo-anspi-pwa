@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#74b9ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Campo ANSPI">
+  <meta name="application-name" content="Campo ANSPI">
+
+  <title>Campo ANSPI - PWA</title>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="../assets/icon-512.png">
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #f4f8ff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .app-shell {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 30%, #74b9ff 60%, #81ecec 100%);
+    }
+    .app-header {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 12px;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6a89cc 0%, #b8e994 100%);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    .app-header img { height: 26px; width: 26px; object-fit: contain; }
+    .app-content { flex: 1; position: relative; }
+    iframe.app-frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: transparent;
+    }
+    .offline-banner {
+      display: none;
+      position: absolute; left: 0; right: 0; top: 0;
+      background: #ff7675; color: #fff; text-align: center; padding: 8px 12px;
+      font-size: 14px; z-index: 2;
+    }
+    .offline .offline-banner { display: block; }
+  </style>
+</head>
+<body>
+  <div class="app-shell" id="app">
+    <div class="app-header">
+      <img src="../assets/icon-192.png" alt="Icona" />
+      <div>Campo Don Michele FIORE - ANSPI</div>
+    </div>
+    <div class="app-content">
+      <div class="offline-banner" id="offlineBanner">Sei offline: alcune funzioni potrebbero non essere disponibili</div>
+      <!-- Apps Script URL di produzione (/exec) -->
+      <iframe
+        class="app-frame"
+        id="appFrame"
+        src="https://script.google.com/macros/s/AKfycbwfVLuqomn3aJl5YxEMKRt9gjA2wq2JpQmt3NVIcmu1UQubbUROxqh3migEZfGAAIYh/exec"
+        title="Campo ANSPI"
+        allow="fullscreen; clipboard-read; clipboard-write">
+      </iframe>
+    </div>
+  </div>
+
+  <script>
+    // Rilevazione semplice stato rete per il banner
+    function updateOnlineStatus() {
+      document.getElementById('app').classList.toggle('offline', !navigator.onLine);
+    }
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+
+    // Registra Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(function(reg) { console.log('✅ SW registered', reg.scope); })
+          .catch(function(err) { console.log('❌ SW registration failed', err); });
+      });
+    }
+  </script>
+</body>
+</html>
+
+

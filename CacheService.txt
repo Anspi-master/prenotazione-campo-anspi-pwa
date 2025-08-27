@@ -1,0 +1,104 @@
+// =====================
+// 4. FUNZIONI DI LETTURA DATI - AGGIORNATE
+// =====================
+/**
+ * Funzione centralizzata per gestire la cache di qualsiasi dato
+ * @param {string} key - Chiave univoca della cache
+ * @param {function} fallbackFn - Funzione che calcola il dato se non presente in cache
+ * @param {number} ttl - Tempo di vita della cache in secondi (default 600)
+ * @returns {*} Il dato richiesto, dalla cache o calcolato
+ */
+function getOrSetCache(key, fallbackFn, ttl = 600) {
+  const cache = CacheService.getScriptCache();
+  let cached = cache.get(key);
+  if (cached !== null) {
+    try {
+      return JSON.parse(cached);
+    } catch (e) {
+      debugLog('Errore parsing cache per ' + key + ', ricalcolo.');
+    }
+  }
+  // Calcola il dato e salva in cache
+  const value = fallbackFn();
+  try {
+    cache.put(key, JSON.stringify(value), ttl);
+  } catch (e) {
+    debugLog('Errore salvataggio cache per ' + key + ': ' + e.message);
+  }
+  return value;
+}
+function clearBookingsCache() {
+  try {
+    const cache = CacheService.getScriptCache();
+    cache.remove('all_bookings');
+    debugLog('🗑️ Cache bookings pulita');
+    return { status: 'ok', message: 'Cache pulita con successo' };
+  } catch (error) {
+    debugLog(`❌ Errore pulizia cache: ${error.message}`);
+    return { status: 'error', message: error.message };
+  }
+}
+
+function setCachedData(key, data) {
+  try {
+    const cache = CacheService.getScriptCache();
+    cache.put(key, JSON.stringify(data), CACHE_DURATION);
+    debugLog(`✅ Dati salvati in cache: ${key}`);
+    return true;
+  } catch (error) {
+    debugLog(`❌ Errore salvataggio cache ${key}: ${error.toString()}`);
+    return false;
+  }
+}
+
+function getCacheStatus() {
+  try {
+    const cache = CacheService.getScriptCache();
+    const status = {};
+    
+    Object.entries(CACHE_KEYS).forEach(([name, key]) => {
+      const cached = cache.get(key);
+      status[name] = {
+        exists: !!cached,
+        size: cached ? cached.length : 0
+      };
+    });
+    
+    // Aggiungi anche la cache esistente
+    const existingCache = cache.get('all_bookings');
+    status.BOOKINGS_OLD = {
+      exists: !!existingCache,
+      size: existingCache ? existingCache.length : 0
+    };
+    
+    return {
+      success: true,
+      status: status,
+      cacheDuration: CACHE_DURATION
+    };
+    
+  } catch (error) {
+    return {
+      success: false,
+      message: `Errore stato cache: ${error.toString()}`
+    };
+  }
+}
+function clearAllCaches() {
+  try {
+    const cache = CacheService.getScriptCache();
+    cache.removeAll([
+      'all_bookings',
+      'calendar_bookings_fast',
+      'bookings_cache',
+      'events_cache',
+      'event_stats',
+      'archived_bookings'
+    ]);
+    debugLog('🗑️ Tutte le cache pulite');
+    return { status: 'ok' };
+  } catch (e) {
+    debugLog('❌ Errore pulizia: ' + e.message);
+    return { status: 'error', message: e.message };
+  }
+}

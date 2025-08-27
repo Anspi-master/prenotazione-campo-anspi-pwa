@@ -1,0 +1,307 @@
+// =====================
+// 6. FUNZIONI PRINCIPALI (createBooking, admin, ecc.) - INVARIATE
+// =====================
+function createBooking(bookingData) {
+  const lock = LockService.getScriptLock(); 
+  lock.waitLock(LOCK_TIMEOUT);
+
+  try {
+    const checkDateString = bookingData.data.split('T')[0];
+    const checkOraString = bookingData.ora;
+    const checkDateTime = new Date(`${checkDateString}T${checkOraString}:00`); 
+    debugLog(`🔍 Verifica prenotazione: ${checkDateString} ${checkOraString} - ${bookingData.evento} (${bookingData.campo})`);
+
+    // Controllo data/ora passata
+    const now = new Date(); 
+    if (checkDateTime < now) {
+      return { 
+        status: 'error', 
+        message: `❌ Non è possibile prenotare per una data/ora già passata.\n\nData/ora selezionata: ${formatDateForEmail(checkDateString)} alle ${checkOraString}\nData/ora attuale: ${now.toLocaleDateString('it-IT')} alle ${now.toTimeString().slice(0,5)}\n\nSeleziona una data e ora future.` 
+      }; 
+    }
+
+    // Controllo orari di chiusura con bypass admin
+    if (isBookingBlocked(checkDateTime)) {
+      if (bookingData.adminActionBy && bookingData.adminActionBy.trim() !== '') {
+        debugLog(`🔓 ADMIN OVERRIDE: ${bookingData.adminActionBy} bypassa orario chiusura`); 
+      } else {
+        return { 
+          status: 'facility_closed_error', 
+          message: `❌ La struttura è chiusa nell'orario selezionato.\n\n🕐 Orari apertura:\n• Lunedì - Sabato: ${OPENING_HOURS.start}:00-${OPENING_HOURS.lunchStart}:00 / ${OPENING_HOURS.lunchEnd}:00-${OPENING_HOURS.end}:00\n• Domenica e festivi: CHIUSO\n\n📞 Per richieste speciali o urgenze è possibile contattare l'amministratore.` 
+        };
+      }
+    }
+
+    // Caricamento eventi e controllo conflitti
+    const allRelevantBookings = getBookings(); 
+    debugLog(`📊 Prenotazioni caricate: ${allRelevantBookings.length}`);
+    
+    const allEventsOnDate = getAllEventsForDate(checkDateString, allRelevantBookings);
+    debugLog(`📅 Eventi per ${checkDateString}: ${allEventsOnDate.length}`); 
+    // Controllo conflitti ottimizzato
+    const conflict = checkBookingConflicts(bookingData, allEventsOnDate); 
+    if (conflict) {
+      if (conflict.type === 'exclusive_conflict') {
+        return { 
+          status: 'exclusive_conflict', 
+          message: conflict.message,
+          conflictDetails: { 
+            nome: conflict.conflictEvent.nome, 
+            evento: conflict.conflictEvent.evento, 
+            ora: conflict.conflictEvent.ora 
+ 
+          } 
+        }; 
+      } else if (conflict.type === 'field_conflict') {
+        const suggestions = generateTimeSuggestions(bookingData, allEventsOnDate, conflict.conflictEvent); 
+        return { 
+          status: 'conflict_suggestions', 
+          conflictDetails: { 
+            nome: conflict.conflictEvent.nome, 
+            evento: conflict.conflictEvent.evento, 
+            ora: conflict.conflictEvent.ora 
+          },
+          suggestions: suggestions
+        }; 
+      }
+    }
+
+    debugLog(`✅ Nessun conflitto rilevato. Procedo con la creazione.`); 
+    // Creazione della prenotazione
+    const sheet = getSheet();
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0]; 
+    const isSpecialEvent = bookingData.evento === 'compleanno' || bookingData.evento === 'eventi';
+    const isAdminBooking = bookingData.adminActionBy && bookingData.adminActionBy.trim() !== ''; 
+    // Auto-approvazione per admin
+    const autoStato = isSpecialEvent ? (isAdminBooking ? 'approvato' : 'in_attesa') : ''; 
+    const newRow = headers.map(header => {
+      const key = header ? header.toLowerCase().trim().replace(/\s/g, '') : '';
+      if (key === 'timestamp') return new Date();
+      if (key === 'stato') return autoStato;
+      if (key === 'adminactionby') return bookingData.adminActionBy || '';
+      if (key === 'archiviato') return '';
+      return bookingData[key] !== undefined ? bookingData[key] : "";
+    }); 
+    sheet.appendRow(newRow);
+    SpreadsheetApp.flush();
+
+    // Invalida TUTTE le cache pertinenti per forzare l'aggiornamento
+    const cache = CacheService.getScriptCache();
+    cache.remove('all_bookings');
+    cache.remove('calendar_bookings_fast'); // <-- RIGA DA AGGIUNGERE
+    debugLog(`📝 Prenotazione ${bookingData.id} creata e cache pulita`);
+
+    // Invio email di conferma
+    try {
+      if (bookingData.email && bookingData.email !== 'admin@campo.anspi') {
+        MailApp.sendEmail({ 
+          to: bookingData.email, 
+          bcc: ADMIN_EMAILS_FOR_NOTIFICATIONS.join(','),
+          subject: `✅ Conferma Prenotazione: ${bookingData.id}`, 
+          htmlBody: createEmailTemplate(bookingData, autoStato)
+        }); 
+        debugLog(`📧 Email di conferma inviata a ${bookingData.email}`);
+      }
+      
+      // Notifica Telegram solo in casi specifici
+      if (shouldSendTelegramNotification(bookingData)) {
+        var msg = `📋 NUOVA PRENOTAZIONE REGISTRATA\n\nCliente: <b>${bookingData.nome}</b>\nEvento: <b>${bookingData.evento}</b>\nCampo: <b>${bookingData.campo}</b>\nData: <b>${bookingData.data}</b>\nOra: <b>${bookingData.ora}</b>\n\n📱 Notifica automatica - Nuova registrazione`; 
+        sendUrgentNotification(msg, 'Nuova Prenotazione', 'new_booking');
+      }
+    } catch(e) { 
+      debugLog(`⚠️ Impossibile inviare l'email: ${e.message}`); 
+    }
+
+    return { 
+      status: 'ok', 
+      data: { 
+        newBooking: bookingData,
+        stato: autoStato
+      } 
+    }; 
+  } catch(e) {
+    debugLog(`❌ ERRORE CRITICO in createBooking: ${e.toString()}`);
+    debugLog(`📝 Stack trace: ${e.stack}`);
+    throw e; 
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// =====================
+// 9. FUNZIONI ADMIN E GESTIONE STATI
+// =====================
+function cancelBooking(bookingId) {
+  const sheet = getSheet();
+  const data = sheet.getDataRange().getValues();
+  const idColumnIndex = data[0].map(h => h.toLowerCase().trim()).indexOf('id');
+  if (idColumnIndex === -1) throw new Error("Colonna 'ID' non trovata.");
+  for (let i = data.length - 1; i >= 1; i--) {
+    if (String(data[i][idColumnIndex]).trim() == String(bookingId).trim()) {
+      sheet.deleteRow(i + 1);
+      SpreadsheetApp.flush();
+
+      // Pulisci le cache per aggiornare la UI
+  const cache = CacheService.getScriptCache();
+  cache.remove('all_bookings');
+  cache.remove('calendar_bookings_fast');
+  
+      return { status: 'ok', data: { cancelledId: bookingId } };
+    }
+  }
+  throw new Error('Codice prenotazione non trovato nel foglio.');
+}
+
+function deleteBooking(bookingId) { 
+  return cancelBooking(bookingId);
+}
+
+function updateBookingDetail(bookingId, field, value) {
+    const sheet = getSheet();
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0].map(h => h.toLowerCase().trim());
+    const idColumnIndex = headers.indexOf('id');
+    const fieldColumnIndex = headers.indexOf(field.toLowerCase());
+    
+    if (idColumnIndex === -1 || fieldColumnIndex === -1) {
+        throw new Error("Colonna ID o campo specificato non trovata.");
+    }
+    
+    // GESTIONE SPECIALE PER RICORRENZA
+    if (field.toLowerCase() === 'ricorrente') {
+        debugLog(`🔄 Modifica ricorrenza per ${bookingId}: ${value}`);
+        
+        // Normalizza il valore
+        const isRecurring = value === true || value === 'true' || value === 'sì';
+        
+        // Trova evento master
+        let masterEventRow = -1;
+        for (let i = 1; i < data.length; i++) {
+            if (String(data[i][idColumnIndex]).trim() === String(bookingId).trim()) {
+                masterEventRow = i;
+                break;
+            }
+        }
+        
+        if (masterEventRow === -1) {
+            throw new Error('Evento non trovato');
+        }
+        
+        if (isRecurring) {
+            // Se ABILITA ricorrenza - SOLO cambia il flag
+            debugLog(`✅ Abilito SOLO il flag ricorrente per ${bookingId}`);
+            
+            sheet.getRange(masterEventRow + 1, fieldColumnIndex + 1).setValue(true);
+            SpreadsheetApp.flush();
+            
+            // IMPORTANTE: NON chiamare altre funzioni di generazione!
+            // La ricorrenza verrà creata automaticamente quando l'evento scade
+            
+            const cache = CacheService.getScriptCache();
+            cache.removeAll(['all_bookings', 'calendar_bookings_fast']);
+            
+            return { 
+                status: 'ok', 
+                data: { 
+                    updatedField: field, 
+                    newValue: true,
+                    message: 'Flag ricorrente attivato. Prossima istanza alla scadenza.'
+                } 
+            };
+            
+        } else {
+            // Se DISABILITA ricorrenza
+            debugLog(`❌ Disabilito ricorrenza per ${bookingId}`);
+            
+            // Cambia il flag
+            sheet.getRange(masterEventRow + 1, fieldColumnIndex + 1).setValue(false);
+            SpreadsheetApp.flush();
+            
+            // Elimina eventi futuri dello stesso gruppo
+            const nomeCol = headers.indexOf('nome');
+            const eventoCol = headers.indexOf('evento');
+            const oraCol = headers.indexOf('ora');
+            const dataCol = headers.indexOf('data');
+            const campoCol = headers.indexOf('campo');
+            
+            const masterEvent = data[masterEventRow];
+            const now = new Date();
+            
+            let deletedCount = 0;
+            
+            // Elimina dal fondo per non alterare gli indici
+            for (let i = data.length - 1; i >= 1; i--) {
+                if (i === masterEventRow) continue;
+                
+                const row = data[i];
+                const eventDate = new Date(formatDateValue(row[dataCol]));
+                
+                // Elimina se è futuro e stesso gruppo
+                if (eventDate > now &&
+                    row[nomeCol] === masterEvent[nomeCol] && 
+                    row[eventoCol] === masterEvent[eventoCol] && 
+                    row[oraCol] === masterEvent[oraCol] &&
+                    row[campoCol] === masterEvent[campoCol]) {
+                    
+                    sheet.deleteRow(i + 1);
+                    deletedCount++;
+                    debugLog(`   🗑️ Eliminato evento futuro del ${formatDateValue(row[dataCol])}`);
+                }
+            }
+            
+            const cache = CacheService.getScriptCache();
+            cache.removeAll(['all_bookings', 'calendar_bookings_fast']);
+            
+            return {
+                status: 'ok',
+                data: {
+                    updatedField: field,
+                    newValue: false,
+                    deletedFutureEvents: deletedCount
+                }
+            };
+        }
+    }
+    
+    // GESTIONE STATO (per eventi speciali)
+    if (field.toLowerCase() === 'stato') {
+        const validStates = ['in_attesa', 'approvato', 'rifiutato', ''];
+        if (!validStates.includes(value)) {
+            throw new Error(`Stato non valido: ${value}`);
+        }
+        
+        const eventoColumnIndex = headers.indexOf('evento');
+        if (eventoColumnIndex !== -1) {
+            for (let i = 1; i < data.length; i++) {
+                if (String(data[i][idColumnIndex]).trim() === String(bookingId).trim()) {
+                    const evento = data[i][eventoColumnIndex];
+                    if (evento !== 'compleanno' && evento !== 'eventi' && value !== '') {
+                        throw new Error('Solo gli eventi speciali possono avere uno stato');
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    
+    // GESTIONE NORMALE per altri campi
+    for (let i = 1; i < data.length; i++) {
+        if (String(data[i][idColumnIndex]).trim() === String(bookingId).trim()) {
+            sheet.getRange(i + 1, fieldColumnIndex + 1).setValue(value);
+            SpreadsheetApp.flush();
+            
+            const cache = CacheService.getScriptCache();
+            cache.removeAll(['all_bookings', 'calendar_bookings_fast']);
+            
+            return { 
+                status: 'ok', 
+                data: { 
+                    updatedField: field, 
+                    newValue: value 
+                } 
+            };
+        }
+    }
+    
+    throw new Error('Prenotazione non trovata.');
+}
