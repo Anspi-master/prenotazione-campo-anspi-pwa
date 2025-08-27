@@ -263,6 +263,21 @@
     <?!= include('style'); ?>
 </head>
 <body data-embedded="<?!= (this && this.queryString && this.queryString.embedded) ? 'true' : (this && this.baseUrl ? ("" + this.baseUrl).indexOf('page=sw') !== -1 ? 'true' : 'false' : 'false') ?>">
+    <script>
+        // Nascondi barra stato se embedded
+        (function(){
+            try {
+                var isEmbedded = document.body.getAttribute('data-embedded') === 'true' || (window.self !== window.top);
+                if (isEmbedded) {
+                    var s = document.getElementById('statusIndicator');
+                    if (s) s.style.display = 'none';
+                    // Rimuovi padding top del container se presente
+                    var cont = document.querySelector('.container');
+                    if (cont) cont.style.paddingTop = '8px';
+                }
+            } catch (e) {}
+        })();
+    </script>
     <!-- Loading screen per mobile -->
     <div class="mobile-loading" id="mobileLoading">
         <div class="mobile-loading-spinner"></div>
