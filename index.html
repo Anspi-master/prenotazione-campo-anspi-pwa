@@ -17,134 +17,25 @@
   <link rel="icon" type="image/png" sizes="512x512" href="https://raw.githubusercontent.com/Anspi-master/prenotazione-campo-anspi-pwa/main/assets/icon-512.png">
 
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      background: #f4f8ff;
-      width: 100%;
-      max-width: 100vw;
-      overflow: hidden;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
-    }
-    .app-shell {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      background: linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 30%, #74b9ff 60%, #81ecec 100%);
-      min-height: 100dvh;
-    }
-    .app-header {
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 0 12px;
-      color: #fff;
-      font-weight: 700;
-      background: linear-gradient(135deg, #6a89cc 0%, #b8e994 100%);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    }
-    .app-header img { height: 26px; width: 26px; object-fit: contain; }
-    .app-content { flex: 1; position: relative; min-height: 0; }
-    iframe.app-frame {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      border: 0;
-      background: transparent;
-    }
-    .offline-banner {
-      display: none;
-      position: absolute; left: 0; right: 0; top: 0;
-      background: #ff7675; color: #fff; text-align: center; padding: 8px 12px;
-      font-size: 14px; z-index: 2;
-    }
-    .offline .offline-banner { display: block; }
-
-    /* Pulsante installazione PWA */
-    #installBtn {
-      position: absolute;
-      right: 12px;
-      bottom: 12px;
-      z-index: 3;
-      padding: 10px 14px;
-      border: 0;
-      border-radius: 10px;
-      background: #0984e3;
-      color: #fff;
-      font-weight: 700;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-      display: none;
-    }
-    @media (prefers-color-scheme: dark) {
-      #installBtn { background: #4da3ff; }
-    }
+    html, body { margin: 0; height: 100%; width: 100%; overflow: hidden; }
+    iframe.app-frame { display: block; width: 100vw; height: 100dvh; border: 0; background: transparent; }
   </style>
 </head>
 <body>
-  <div class="app-shell" id="app">
-    <div class="app-content">
-      <div class="offline-banner" id="offlineBanner">Sei offline: alcune funzioni potrebbero non essere disponibili</div>
-      <button id="installBtn" type="button">📲 Installa app</button>
-      <!-- Apps Script URL di produzione (/exec) -->
-      <iframe
-        class="app-frame"
-        id="appFrame"
-        src="https://script.google.com/macros/s/AKfycbwHp2gQMgAoptjEJE21UKlkc62IBztTz5IniRv_JF6d_FhWXfT9EpdWZu9ew1R3exwm/exec?v=timestamp"
-        title="Campo ANSPI"
-        allow="fullscreen; clipboard-read; clipboard-write">
-      </iframe>
-    </div>
-  </div>
+  <!-- Shell trasparente: solo iframe full-viewport -->
+  <iframe
+    class="app-frame"
+    id="appFrame"
+    src="https://script.google.com/macros/s/AKfycbwHp2gQMgAoptjEJE21UKlkc62IBztTz5IniRv_JF6d_FhWXfT9EpdWZu9ew1R3exwm/exec?v=timestamp"
+    title="Campo ANSPI"
+    allow="fullscreen; clipboard-read; clipboard-write">
+  </iframe>
 
   <script>
-    // Gestione installazione PWA (Chrome/Edge/Android)
-    let deferredPrompt = null;
-    const installBtn = document.getElementById('installBtn');
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = 'inline-block';
-    });
-    installBtn?.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      try { await deferredPrompt.userChoice; } catch (_) {}
-      installBtn.style.display = 'none';
-      deferredPrompt = null;
-    });
-
-    // Rilevazione semplice stato rete per il banner
-    function updateOnlineStatus() {
-      document.getElementById('app').classList.toggle('offline', !navigator.onLine);
-    }
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-    updateOnlineStatus();
-
-    // Registra Service Worker
+    // SW minimale, nessun overlay UI
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('./service-worker.js?ver=2')
-          .then(function(reg) {
-            console.log('✅ SW registered', reg.scope);
-            if (reg.waiting) { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); }
-            reg.addEventListener('updatefound', () => {
-              const sw = reg.installing;
-              if (!sw) return;
-              sw.addEventListener('statechange', () => {
-                if (sw.state === 'installed' && navigator.serviceWorker.controller) {
-                  location.reload();
-                }
-              });
-            });
-          })
-          .catch(function(err) { console.log('❌ SW registration failed', err); });
+        navigator.serviceWorker.register('./service-worker.js?ver=2').catch(()=>{});
       });
     }
   </script>
