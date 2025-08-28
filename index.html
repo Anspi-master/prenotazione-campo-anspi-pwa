@@ -8,6 +8,16 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Campo ANSPI">
   <meta name="application-name" content="Campo ANSPI">
+  <script>
+    (function(){
+      var p=new URLSearchParams(location.search||'');
+      if(p.get('pwa')==='1'){ document.documentElement.setAttribute('data-pwa','true');
+        document.addEventListener('DOMContentLoaded',function(){
+          document.body&&document.body.setAttribute('data-pwa','true');
+        });
+      }
+    })();
+    </script>
 
   <title>Campo ANSPI - PWA</title>
 
@@ -30,7 +40,7 @@
   <iframe
     class="app-frame"
     id="appFrame"
-    src="https://script.google.com/macros/s/AKfycbyaI1oq4AwDMPgMW1sz35cQx7U_QIhGrYIdL0dJymY2hVRZfCPUm0RJT5XPYcEMMBeq/exec?v=timestamp"
+    src="https://script.google.com/macros/s/AKfycbzj0QJ8mKrDZk1wZUpNiHXzNSPvWstuUjZQcUKJvn28_tlGUlZgPjtS8aVnCUT_kUgN/exec?pwa=1&v=timestamp"
     title="Campo ANSPI"
     allow="fullscreen; clipboard-read; clipboard-write">
   </iframe>
