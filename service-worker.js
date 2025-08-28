@@ -1,11 +1,11 @@
 // SW minimal per GitHub Pages shell PWA
-const CACHE_NAME = 'campo-anspi-shell-v2';
+const CACHE_NAME = 'campo-anspi-shell-v3';
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  '../assets/icon-192.png',
-  '../assets/icon-512.png'
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', event => {

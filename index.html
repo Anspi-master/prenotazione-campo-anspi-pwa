@@ -12,9 +12,9 @@
   <title>Campo ANSPI - PWA</title>
 
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/Anspi-master/prenotazione-campo-anspi-pwa/main/assets/icon-192.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="https://raw.githubusercontent.com/Anspi-master/prenotazione-campo-anspi-pwa/main/assets/icon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="https://raw.githubusercontent.com/Anspi-master/prenotazione-campo-anspi-pwa/main/assets/icon-512.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
 
   <style>
     html, body {
@@ -95,7 +95,7 @@
       <iframe
         class="app-frame"
         id="appFrame"
-        src="https://script.google.com/macros/s/AKfycbxi8MufxsmUkqhghpLOYXw0eg7MJaMlmdiXzPPmNv9E3P2yLMz4ARgy5S3zhE59Kfet/exec?embedded=1&mobile=1"
+        src="https://script.google.com/macros/s/AKfycbwRp8oEzNKh_PlutWM2iH9AY_l2hR-TJHZyRjFG_KCcRBRVEsjK6TlLqGZEqKebtKkM/exec?embedded=1&mobile=1"
         title="Campo ANSPI"
         allow="fullscreen; clipboard-read; clipboard-write">
       </iframe>
@@ -130,7 +130,7 @@
     // Registra Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('./service-worker.js?ver=2')
+        navigator.serviceWorker.register('./service-worker.js?ver=3')
           .then(function(reg) {
             console.log('✅ SW registered', reg.scope);
             if (reg.waiting) { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); }
