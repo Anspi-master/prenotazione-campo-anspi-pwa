@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#74b9ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Campo ANSPI">
+  <meta name="application-name" content="Campo ANSPI">
+
+  <title>Campo ANSPI - PWA</title>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/Anspi-master/prenotazione-campo-anspi-pwa/main/assets/icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="https://raw.githubusercontent.com/Anspi-master/prenotazione-campo-anspi-pwa/main/assets/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="https://raw.githubusercontent.com/Anspi-master/prenotazione-campo-anspi-pwa/main/assets/icon-512.png">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    html {
+      /* Previene zoom indesiderato su iOS */
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      background: #f4f8ff;
+      overflow: hidden;
+      position: fixed; /* Previene il bounce scroll su iOS */
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    
+    .app-shell {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 30%, #74b9ff 60%, #81ecec 100%);
+      height: 100vh;
+      height: 100dvh; /* Per browser che supportano dynamic viewport */
+      width: 100vw;
+      max-width: 100vw;
+      max-height: 100vh;
+      max-height: 100dvh;
+    }
+    
+    .app-header {
+      height: 52px;
+      min-height: 52px;
+      max-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 12px;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6a89cc 0%, #b8e994 100%);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      flex-shrink: 0;
+    }
+    
+    .app-header img { 
+      height: 26px; 
+      width: 26px; 
+      object-fit: contain; 
+    }
+    
+    .app-content { 
+      flex: 1;
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+      background: #fff;
+    }
+    
+    .iframe-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    iframe.app-frame {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: transparent;
+      display: block;
+      /* CSS per migliorare la responsività dell'iframe */
+      transform: scale(1);
+      transform-origin: 0 0;
+    }
+    
+    /* Media query per dispositivi molto piccoli */
+    @media screen and (max-width: 390px) {
+      .app-header {
+        height: 48px;
+        min-height: 48px;
+        font-size: 14px;
+        padding: 0 8px;
+      }
+      .app-header img {
+        height: 22px;
+        width: 22px;
+      }
+    }
+    
+    /* Media query per dispositivi in landscape */
+    @media screen and (orientation: landscape) and (max-height: 500px) {
+      .app-header {
+        height: 44px;
+        min-height: 44px;
+        font-size: 14px;
+      }
+    }
+    
+    .offline-banner {
+      display: none;
+      position: absolute; 
+      left: 0; 
+      right: 0; 
+      top: 0;
+      background: #ff7675; 
+      color: #fff; 
+      text-align: center; 
+      padding: 8px 12px;
+      font-size: 14px; 
+      z-index: 10;
+      flex-shrink: 0;
+    }
+    
+    .offline .offline-banner { 
+      display: block; 
+    }
+
+    /* Pulsante installazione PWA */
+    #installBtn {
+      position: fixed;
+      right: 12px;
+      bottom: 12px;
+      z-index: 20;
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 10px;
+      background: #0984e3;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+      display: none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    #installBtn:active {
+      transform: scale(0.95);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      #installBtn { 
+        background: #4da3ff; 
+      }
+    }
+    
+    /* Loading spinner per migliorare UX */
+    .loading-spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #74b9ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      z-index: 5;
+    }
+    
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    
+    .iframe-loaded .loading-spinner {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell" id="app">
+    <div class="app-header">
+      <img src="https://raw.githubusercontent.com/Anspi-master/prenotazione-campo-anspi-pwa/main/assets/icon-192.png" alt="Campo ANSPI">
+      <span>Campo Don Michele FIORE</span>
+    </div>
+    
+    <div class="app-content">
+      <div class="offline-banner" id="offlineBanner">
+        Sei offline: alcune funzioni potrebbero non essere disponibili
+      </div>
+      
+      <div class="iframe-container" id="iframeContainer">
+        <div class="loading-spinner" id="loadingSpinner"></div>
+        <iframe
+          class="app-frame"
+          id="appFrame"
+          src="https://script.google.com/macros/s/AKfycbzrSsoxkAxgPASWYrkS9C7TX10xXiN2tbT-zFQz3nypaGKvZp3dIQD07X5DAyrM-ztF/exec?embedded=1&mobile=1"
+          title="Campo ANSPI"
+          loading="lazy"
+          allow="fullscreen; clipboard-read; clipboard-write; geolocation"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation-by-user-activation">
+        </iframe>
+      </div>
+      
+      <button id="installBtn" type="button">📲 Installa app</button>
+    </div>
+  </div>
+
+  <script>
+    // Funzione per ottimizzare le dimensioni dell'iframe
+    function optimizeIframe() {
+      const iframe = document.getElementById('appFrame');
+      const container = document.getElementById('iframeContainer');
+      
+      if (!iframe || !container) return;
+      
+      const containerWidth = container.offsetWidth;
+      const containerHeight = container.offsetHeight;
+      
+      // Assicurati che l'iframe riempia esattamente il container
+      iframe.style.width = containerWidth + 'px';
+      iframe.style.height = containerHeight + 'px';
+      
+      // Per dispositivi molto piccoli, potresti voler scalare il contenuto
+      if (window.innerWidth < 360) {
+        iframe.style.transform = 'scale(0.95)';
+        iframe.style.transformOrigin = 'center center';
+      } else {
+        iframe.style.transform = 'scale(1)';
+      }
+    }
+    
+    // Gestione caricamento iframe
+    document.getElementById('appFrame').addEventListener('load', function() {
+      document.getElementById('iframeContainer').classList.add('iframe-loaded');
+      optimizeIframe();
+      
+      // Prova a comunicare con l'iframe per ottimizzazioni aggiuntive
+      try {
+        this.contentWindow.postMessage({
+          type: 'PWA_SHELL_READY',
+          viewport: {
+            width: window.innerWidth,
+            height: window.innerHeight
+          }
+        }, '*');
+      } catch (e) {
+        console.log('Cross-origin communication not available');
+      }
+    });
+    
+    // Gestione ridimensionamento finestra
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        optimizeIframe();
+        
+        // Ricarica l'iframe se necessario dopo rotazione schermo
+        const iframe = document.getElementById('appFrame');
+        if (iframe && Math.abs(window.orientation) === 90) {
+          // Landscape mode - potresti voler ricaricare
+          setTimeout(() => {
+            iframe.src = iframe.src;
+          }, 300);
+        }
+      }, 250);
+    });
+    
+    // Gestione orientamento schermo
+    window.addEventListener('orientationchange', function() {
+      setTimeout(() => {
+        optimizeIframe();
+        // Forza un refresh della viewport
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+          viewport.setAttribute('content', 
+            'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover'
+          );
+        }
+      }, 500);
+    });
+
+    // Gestione installazione PWA (Chrome/Edge/Android)
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('installBtn');
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'inline-block';
+    });
+    
+    installBtn?.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      try { 
+        const result = await deferredPrompt.userChoice; 
+        console.log('Install prompt result:', result);
+      } catch (err) {
+        console.log('Install prompt error:', err);
+      }
+      installBtn.style.display = 'none';
+      deferredPrompt = null;
+    });
+
+    // Rilevazione stato rete
+    function updateOnlineStatus() {
+      const app = document.getElementById('app');
+      const isOffline = !navigator.onLine;
+      app.classList.toggle('offline', isOffline);
+      
+      if (isOffline) {
+        console.log('App is offline');
+      } else {
+        console.log('App is online');
+      }
+    }
+    
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+
+    // Previeni zoom accidentale
+    document.addEventListener('touchstart', function(e) {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+
+    // Registra Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./service-worker.js?ver=3')
+          .then(function(reg) {
+            console.log('✅ SW registered', reg.scope);
+            if (reg.waiting) { 
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' }); 
+            }
+            reg.addEventListener('updatefound', () => {
+              const sw = reg.installing;
+              if (!sw) return;
+              sw.addEventListener('statechange', () => {
+                if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+                  // Nuovo contenuto disponibile
+                  if (confirm('Nuova versione disponibile. Ricaricare?')) {
+                    location.reload();
+                  }
+                }
+              });
+            });
+          })
+          .catch(function(err) { 
+            console.log('❌ SW registration failed', err); 
+          });
+      });
+    }
+    
+    // Inizializzazione
+    document.addEventListener('DOMContentLoaded', function() {
+      optimizeIframe();
+      
+      // Nascondi la barra degli indirizzi su mobile dopo un po'
+      setTimeout(() => {
+        window.scrollTo(0, 1);
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
