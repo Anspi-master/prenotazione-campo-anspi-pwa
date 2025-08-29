@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Campo ANSPI">
+    <meta name="msapplication-TileColor" content="#74b9ff">
+    <meta name="msapplication-tap-highlight" content="no">
     
     <!-- SEO e Social Meta Tags -->
     <meta name="description" content="Sistema di prenotazioni per il Campo Don Michele FIORE - ANSPI Giovinazzo. Prenota calcetto, pallavolo, compleanni e eventi speciali.">
@@ -24,8 +27,10 @@
     <meta name="twitter:description" content="Sistema di prenotazioni per il Campo Don Michele FIORE - ANSPI Giovinazzo">
     <meta name="twitter:image" content="https://i.imgur.com/0Tl9Jv9.png">
     
-    <!-- Favicon -->
+    <!-- Favicon e App Icons -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdib3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzc0YjlmZiIvPgo8cGF0aCBkPSJNOCA4SDI0VjI0SDhWOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xMCAxMEgyMlYxNkgxMFYxNloiIGZpbGw9IiM3NGI5ZmYiLz4KPHBhdGggZD0iTTEyIDEySDIwVjE0SDEyVjE0WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEyIDE2SDIwVjE4SDEyVjE4WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+">
+    <link rel="icon" type="image/svg+xml" sizes="16x16" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdib3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiByeD0iMyIgZmlsbD0iIzc0YjlmZiIvPgo8cGF0aCBkPSJNNCA0SDEyVjEySDRWNFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik01IDVIMTFWOUg1VjlaIiBmaWxsPSIjNzRiOWZmIi8+CjxwYXRoIGQ9Ik02IDZIMTBWN0g2VjdaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNiA4SDEwVjlINlY5WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iMzgiIGZpbGw9IiM3NGI5ZmYiLz4KPHBhdGggZD0iTTQ1IDQ1SDEzNVYxMzVINDBWNDVaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTYuMjUgNTYuMjVIMTIzLjc1VjkwSDU2LjI1VjkwWiIgZmlsbD0iIzc0YjlmZiIvPgo8cGF0aCBkPSJNNjcuNSA2Ny41SDExMi41Vjc4LjVINjcuNVY3OC41WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTY3LjUgNzguNzVIMTEyLjVWOTBINjcuNVY5MFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik02Ny41IDk3LjVIMTEyLjVWMTA4LjVINjcuNVYxMDguNVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik02Ny41IDExNi4yNUgxMTIuNVYxMjcuNUg2Ny41VjEyNy41WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTY3LjUgMTM1SDExMi41VjE0Ni4yNUg2Ny41VjE0Ni4yNVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==">
     <link rel="mask-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwIiBoZWlnaHQ9IjE2MCIgdmlld0JveD0iMCAwIDE2MCAxNjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMzIiIGZpbGw9IiM3NGI5ZmYiLz4KPHBhdGggZD0iTTQwIDQwSDExMFYxMTBINDBWNDBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAgNTBIMTAwVjgwSDUwVjgwWiIgZmlsbD0iIzc0YjlmZiIvPgo8cGF0aCBkPSJNNjAgNjBINzBWNzBINjBWNzBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNjAgNzVINzBWNzVINjBWNzVaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNjAgODVINzBWNzVINjBWNzVaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNjAgOTVINzBWMTA1SDYwVjEwNVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==" color="#74b9ff">
     
     <!-- Preconnect per performance -->
@@ -38,7 +43,142 @@
     
     <title>Campo Don Michele FIORE - ANSPI</title>
     
+    <!-- Manifest per PWA - Semplificato per Google Apps Script -->
+    <!-- 
+    NOTA: Google Apps Script ha limitazioni per PWA installabili.
+    Questo manifest fornisce funzionalità base (caching, offline) 
+    ma l'installazione completa potrebbe non funzionare su tutti i browser.
+    -->
+    <!-- manifest PWA rimosso -->
     
+    <!--
+    <script>
+        const manifestData = {
+            "name": "Campo Don Michele FIORE - ANSPI",
+            "short_name": "Campo ANSPI",
+            "description": "Sistema di prenotazioni per il Campo Don Michele FIORE - ANSPI Giovinazzo",
+            "start_url": "./",
+            "display": "standalone",
+            "background_color": "#74b9ff",
+            "theme_color": "#74b9ff",
+            "orientation": "portrait-primary",
+            "scope": "./",
+            "lang": "it",
+            "dir": "ltr",
+            "categories": ["sports", "business", "lifestyle"],
+            "icons": [
+                {
+                    "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDAiIGZpbGw9IiM3NGI5ZmYiLz4KPHBhdGggZD0iTTQ4IDQ4SDE0NFYxNDRINDBWNDhaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNjAgNjBIMTMyVjk2SDYwVjk2WiIgZmlsbD0iIzc0YjlmZiIvPgo8cGF0aCBkPSJNNzIgNzJIMTIwVjg0SDcyVjg0WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTcyIDg4SDEyMFYxMDBINzJWMTAwWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTcyIDEwNEgxMjBWMTE2SDcyVjExNloiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik03MiAxMjBIMTIwVjEzMkg3MlYxMzJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNzIgMTM2SDEyMFYxNDhINzJWMTQ4WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+",
+                    "sizes": "192x192",
+                    "type": "image/svg+xml",
+                    "purpose": "any"
+                },
+                {
+                    "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTA4IiBmaWxsPSIjNzRiOWZmIi8+CjxwYXRoIGQ9Ik0xMjggMTI4SDM4NFYzODRIMTI4VjEyOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xNjAgMTYwSDM1MlYyNTZIMTYwVjE2MFoiIGZpbGw9IiM3NGI5ZmYiLz4KPHBhdGggZD0iTTE5MiAxOTJIMzIwVjIyNEgxOTJWMjI0WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTE5MiAyMzJIMzIwVjI2NEgxOTJWMjY0WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTE5MiAyNzJIMzIwVjMwNEgxOTJWMzA0WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTE5MiAzMTJIMzIwVjM0NEgxOTJWMzQ0WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTE5MiAzNTJIMzIwVjM4NEgxOTJWMzg0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+",
+                    "sizes": "512x512",
+                    "type": "image/svg+xml",
+                    "purpose": "any"
+                }
+            ]
+        };
+        
+        // Crea il manifest blob e URL
+        const manifestBlob = new Blob([JSON.stringify(manifestData, null, 2)], {
+            type: 'application/json'
+        });
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        
+        // Aggiungi il link al manifest
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestURL;
+        document.head.appendChild(link);
+        
+        console.log('✅ Manifest PWA semplificato creato');
+    </script>
+    -->
+    
+        <!-- Service Worker - Semplificato per Google Apps Script -->
+    <!-- service worker rimosso -->
+    
+    <!--
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                const swContent = `
+                    // Service Worker semplificato per Campo ANSPI
+                    const CACHE_NAME = 'campo-anspi-v3.0';
+                    
+                    // Installazione del Service Worker
+                    self.addEventListener('install', event => {
+                        console.log('🔄 Service Worker installazione iniziata');
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => {
+                                    console.log('📦 Cache aperta:', CACHE_NAME);
+                                    return cache.addAll([
+                                        './',
+                                        'https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap'
+                                    ]);
+                                })
+                                .then(() => {
+                                    console.log('✅ Service Worker installato');
+                                    return self.skipWaiting();
+                                })
+                                .catch(error => {
+                                    console.error('❌ Errore installazione Service Worker:', error);
+                                })
+                        );
+                    });
+
+                    // Attivazione del Service Worker
+                    self.addEventListener('activate', event => {
+                        console.log('🚀 Service Worker attivazione iniziata');
+                        event.waitUntil(
+                            caches.keys()
+                                .then(cacheNames => {
+                                    return Promise.all(
+                                        cacheNames.map(cacheName => {
+                                            if (cacheName !== CACHE_NAME) {
+                                                console.log('🗑️ Eliminando cache vecchia:', cacheName);
+                                                return caches.delete(cacheName);
+                                            }
+                                        })
+                                    );
+                                })
+                                .then(() => {
+                                    console.log('✅ Service Worker attivato');
+                                    return self.clients.claim();
+                                })
+                        );
+                    });
+
+                    // Intercettazione delle richieste - strategia semplice
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            fetch(event.request)
+                                .catch(() => {
+                                    return caches.match(event.request);
+                                })
+                        );
+                    });
+
+                    console.log('🔧 Service Worker semplificato caricato');
+                `;
+                
+                // Crea blob e registra Service Worker
+                const swBlob = new Blob([swContent], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(function(registration) { console.log('✅ SW registered: ', registration); })
+                    .catch(function(registrationError) { console.log('❌ SW registration failed: ', registrationError); });
+            });
+        }
+    </script>
+    -->
+    
+    <!-- beforeinstallprompt/banners rimossi -->
     
     <!-- FILTRO ERRORI ESTENSIONI BROWSER -->
     <script>
