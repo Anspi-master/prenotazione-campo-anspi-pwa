@@ -70,8 +70,6 @@ function doGet(e) {
     if (e.parameter.page) {
       console.log('🔍 e.parameter.page:', e.parameter.page);
       console.log('🔍 Tipo di e.parameter.page:', typeof e.parameter.page);
-      console.log('🔍 e.parameter.page === "manifest":', e.parameter.page === 'manifest');
-      console.log('🔍 e.parameter.page === "sw":', e.parameter.page === 'sw');
     }
     
     // Debug di tutti i parametri
@@ -150,14 +148,6 @@ function handleApiRequest(e, method) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
-
-
-
-
-
-
-
-
 
 // ✅ Funzione include (se non ce l'hai già)
 function include(filename) {
@@ -249,7 +239,7 @@ if (new Date().getTime() - startTime > MAX_EXECUTION_TIME) {
       case 'getCacheStatus': return getCacheStatus();
       
 
-      // Manifest e Service Worker ora gestiti inline nell'HTML
+      // (Manifest/Service Worker rimossi)
       case 'testSheetConnection': 
   try {
     return testSheetConnection();
@@ -868,34 +858,8 @@ function testPWADirectly() {
   console.log('🧪 Test diretto PWA...');
   
   try {
-    // Test 1: Manifest diretto
-    console.log('📋 Testando manifest diretto...');
-    const manifestResult = serveManifest();
-    console.log('✅ Manifest generato correttamente');
-    console.log('📋 MIME type:', manifestResult.getMimeType());
-    console.log('📋 Contenuto (primi 100 caratteri):', manifestResult.getContent().substring(0, 100));
-    
-    // Test 2: Service Worker diretto
-    console.log('🔧 Testando Service Worker diretto...');
-    const swResult = serveServiceWorker();
-    console.log('✅ Service Worker generato correttamente');
-    console.log('🔧 MIME type:', swResult.getMimeType());
-    console.log('🔧 Contenuto (primi 100 caratteri):', swResult.getContent().substring(0, 100));
-    
-    // Test 3: Simulazione doGet con parametri
+    // Test: Simulazione doGet
     console.log('🧪 Testando simulazione doGet...');
-    
-    // Simula parametri per manifest
-    const testParams1 = { page: 'manifest' };
-    console.log('📋 Testando parametri manifest:', testParams1);
-    
-    // Simula parametri per Service Worker
-    const testParams2 = { page: 'sw' };
-    console.log('🔧 Testando parametri Service Worker:', testParams2);
-    
-    // Simula parametri fallback
-    const testParams3 = { sw: 'true' };
-    console.log('🔄 Testando parametri fallback:', testParams3);
     
     console.log('✅ Tutti i test completati con successo!');
     
@@ -911,13 +875,6 @@ function testCompletePWA() {
   try {
     // Test 1: Verifica funzioni dirette
     console.log('📋 Test 1: Verifica funzioni dirette...');
-    
-    const manifestResult = serveManifest();
-    console.log('✅ Manifest:', manifestResult.getMimeType(), '->', manifestResult.getContent().substring(0, 50) + '...');
-    
-    const swResult = serveServiceWorker();
-    console.log('✅ Service Worker:', swResult.getMimeType(), '->', swResult.getContent().substring(0, 50) + '...');
-    
     const resetResult = servePasswordResetPage('test-token');
     console.log('✅ Reset Page:', resetResult.getContent().substring(0, 50) + '...');
     
@@ -926,11 +883,8 @@ function testCompletePWA() {
     
     // Simula doGet con parametri
     const testCases = [
-      { params: { page: 'manifest' }, expected: 'manifest' },
-      { params: { page: 'sw' }, expected: 'sw' },
       { params: { page: 'api' }, expected: 'api' },
       { params: { resetToken: 'test' }, expected: 'reset' },
-      { params: { sw: 'true' }, expected: 'sw-fallback' },
       { params: {}, expected: 'app' }
     ];
     
@@ -955,16 +909,11 @@ function testCompletePWA() {
     console.log('🔗 Test 3: Verifica URL...');
     const scriptUrl = ScriptApp.getService().getUrl();
     console.log('✅ Script URL:', scriptUrl);
-    console.log('✅ Manifest URL:', scriptUrl + '?page=manifest');
-    console.log('✅ Service Worker URL:', scriptUrl + '?page=sw');
-    console.log('✅ Fallback URL:', scriptUrl + '?sw=true');
     
     console.log('✅ === TEST COMPLETO PWA SUPERATO ===');
     return {
       status: 'ok',
-      message: 'Tutti i test PWA sono stati superati',
-      manifest: manifestResult.getMimeType(),
-      serviceWorker: swResult.getMimeType(),
+      message: 'Test completati',
       resetPage: 'HTML generato',
       scriptUrl: scriptUrl
     };
@@ -986,16 +935,17 @@ function testHTTPRequests() {
     // Simula le richieste HTTP che il browser fa
     const testCases = [
       {
-        name: 'Manifest Request',
-        params: { page: 'manifest' },
-        expectedMime: ContentService.MimeType.JSON,
-        expectedContent: 'name'
+        name: 'Main App Request (HTML)',
+        params: {},
+        expectedMime: 'text/html',
+        expectedContent: 'html',
+        isHtmlService: true
       },
       {
-        name: 'Service Worker Request',
-        params: { page: 'sw' },
-        expectedMime: ContentService.MimeType.JAVASCRIPT,
-        expectedContent: 'Service Worker'
+        name: 'API Request (JSON)',
+        params: { page: 'api' },
+        expectedMime: ContentService.MimeType.JSON,
+        expectedContent: 'pong'
       },
       {
         name: 'Main App Request',
@@ -1005,10 +955,10 @@ function testHTTPRequests() {
         isHtmlService: true
       },
       {
-        name: 'Fallback SW Request',
-        params: { sw: 'true' },
+        name: 'API Ping JSONP (callback)',
+        params: { page: 'api', action: 'ping', callback: 'cb' },
         expectedMime: ContentService.MimeType.JAVASCRIPT,
-        expectedContent: 'Service Worker'
+        expectedContent: 'cb('
       }
     ];
     

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     
+    
     <!-- SEO e Social Meta Tags -->
     <meta name="description" content="Sistema di prenotazioni per il Campo Don Michele FIORE - ANSPI Giovinazzo. Prenota calcetto, pallavolo, compleanni e eventi speciali.">
     <meta name="keywords" content="campo calcetto, pallavolo, prenotazioni, ANSPI, Giovinazzo, sport">
@@ -23,10 +24,8 @@
     <meta name="twitter:description" content="Sistema di prenotazioni per il Campo Don Michele FIORE - ANSPI Giovinazzo">
     <meta name="twitter:image" content="https://i.imgur.com/0Tl9Jv9.png">
     
-    <!-- Favicon e App Icons -->
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdib3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzc0YjlmZiIvPgo8cGF0aCBkPSJNOCA4SDI0VjI0SDhWOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xMCAxMEgyMlYxNkgxMFYxNloiIGZpbGw9IiM3NGI5ZmYiLz4KPHBhdGggZD0iTTEyIDEySDIwVjE0SDEyVjE0WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEyIDE2SDIwVjE4SDEyVjE4WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+">
-    <link rel="icon" type="image/svg+xml" sizes="16x16" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdib3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiByeD0iMyIgZmlsbD0iIzc0YjlmZiIvPgo8cGF0aCBkPSJNNCA0SDEyVjEySDRWNFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik01IDVIMTFWOUg1VjlaIiBmaWxsPSIjNzRiOWZmIi8+CjxwYXRoIGQ9Ik02IDZIMTBWN0g2VjdaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNiA4SDEwVjlINlY5WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+">
-    
     <link rel="mask-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwIiBoZWlnaHQ9IjE2MCIgdmlld0JveD0iMCAwIDE2MCAxNjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIiByeD0iMzIiIGZpbGw9IiM3NGI5ZmYiLz4KPHBhdGggZD0iTTQwIDQwSDExMFYxMTBINDBWNDBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAgNTBIMTAwVjgwSDUwVjgwWiIgZmlsbD0iIzc0YjlmZiIvPgo8cGF0aCBkPSJNNjAgNjBINzBWNzBINjBWNzBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNjAgNzVINzBWNzVINjBWNzVaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNjAgODVINzBWNzVINjBWNzVaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNjAgOTVINzBWMTA1SDYwVjEwNVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==" color="#74b9ff">
     
     <!-- Preconnect per performance -->
@@ -38,10 +37,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <title>Campo Don Michele FIORE - ANSPI</title>
-    
-    
-    
-    
     
     
     
@@ -83,27 +78,6 @@
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            width: 100vw;
-            max-width: 100vw;
-            overflow-x: hidden;
-        }
-        
-        
-        /* Immagini e media sempre responsivi */
-        img, svg, canvas, video { max-width: 100%; height: auto; }
-        
-        /* Contenitori full width */
-        .container, .content, .main, .section, .booking-section { width: 100%; max-width: 100%; }
-        
-        /* Tabelle responsivizzate */
-        table { width: 100%; table-layout: fixed; border-collapse: collapse; }
-        
-        /* Form controls full width su mobile */
-        input, select, textarea, button { max-width: 100%; box-sizing: border-box; }
-        
-        @media screen and (max-width: 480px) {
-            body { padding: 0; }
-            h1, h2, h3 { line-height: 1.2; }
         }
         
         .container { 
@@ -199,7 +173,6 @@
     <?!= include('style'); ?>
 </head>
 <body>
-    
     <!-- Loading screen per mobile -->
     <div class="mobile-loading" id="mobileLoading">
         <div class="mobile-loading-spinner"></div>
@@ -218,7 +191,6 @@
                 <img src="https://i.imgur.com/0Tl9Jv9.png" alt="Logo Parrocchia" style="height: 60px; object-fit: contain;" loading="eager">
             </div>
             <div class="subtitle">🏆 Parrocchia Sant'Agostino - ANSPI 🏆</div>
-            
         </div>
         
         <!-- Sezione prenotazioni ottimizzata -->
@@ -707,6 +679,10 @@
                             <span class="btn-text">📧 Simula Riepilogo</span>
                             <span class="btn-loading" style="display: none;">⏳ Marcatura...</span>
                              </button>
+                            <button class="btn btn-info" id="btn-test-same-day-alert" style="background: #17a2b8; color: white; flex: 1; min-width: 150px; font-size: 0.85rem;">
+                            <span class="btn-text">⚡ Test Alert Stesso Giorno</span>
+                            <span class="btn-loading" style="display: none;">⏳ Test...</span>
+                             </button>
                         </div>
                     </div>
 
@@ -1004,8 +980,6 @@
     <?!= include('script'); ?>
     
  <script>
-// Rimosso: guida "Aggiungi alla Home"
-
 // Script per inizializzare il pannello ricorrenze intelligenti
 document.addEventListener('DOMContentLoaded', function() {
     setupSmartRecurringListeners();

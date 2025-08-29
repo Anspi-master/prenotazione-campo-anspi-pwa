@@ -9,7 +9,8 @@ function sendTelegramNotification(message, type, options = {}) {
     'special_event': '🎉',
     'reminder': '⏰',
     'urgent': '🚨',
-    'default': '🔔'
+    'default': '🔔',
+    'same_day_alert': '⚡' // Nuovo tipo per alert stesso giorno
   };
   var prefix = emoji[type] || emoji['default'];
   var text = `${prefix} <b>Campo Don Michele FIORE - ANSPI</b>\n\n${message}\n\n⏰ ${new Date().toLocaleString('it-IT')}`;
@@ -39,6 +40,73 @@ function sendTelegramNotification(message, type, options = {}) {
   });
 }
 
+// ✅ NUOVA FUNZIONE: Alert per nuove prenotazioni nella stessa giornata
+function sendSameDayBookingAlert(bookingData) {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const bookingDate = bookingData.data.split('T')[0];
+    
+    // Verifica che sia effettivamente per oggi
+    if (bookingDate !== today) {
+      debugLog(`📅 Prenotazione non per oggi (${bookingDate} vs ${today}) - nessun alert`);
+      return false;
+    }
+    
+    // Verifica se l'avviso giornaliero è già stato inviato
+    if (!checkIfDailySummarySent(today)) {
+      debugLog(`📅 Avviso giornaliero non ancora inviato per oggi - nessun alert`);
+      return false;
+    }
+    
+    debugLog(`⚡ INVIO ALERT STESSO GIORNO: Nuova prenotazione dopo avviso giornaliero`);
+    
+    // Prepara messaggio dettagliato
+    const eventIcon = { 'calcetto': '⚽', 'pallavolo': '🏐', 'compleanno': '🎉', 'eventi': '🎪' }[bookingData.evento] || '📅';
+    const eventName = getEventName(bookingData.evento);
+    const campoName = getCampoName(bookingData.campo);
+    
+    let message = `⚡ <b>NUOVA PRENOTAZIONE STESSO GIORNO!</b>\n\n`;
+    message += `📅 <b>Data:</b> ${formatDateForEmail(bookingDate)}\n`;
+    message += `🕐 <b>Ora:</b> ${bookingData.ora}\n`;
+    message += `👤 <b>Cliente:</b> ${bookingData.nome}\n`;
+    message += `📧 <b>Email:</b> ${bookingData.email || 'N/D'}\n`;
+    message += `📞 <b>Telefono:</b> ${bookingData.telefono || 'N/D'}\n`;
+    message += `${eventIcon} <b>Evento:</b> ${eventName}\n`;
+    message += `🏟️ <b>Campo:</b> ${campoName}\n`;
+    message += `🔐 <b>Codice:</b> ${bookingData.id}\n`;
+    
+    // Aggiungi note se presenti
+    if (bookingData.note && bookingData.note.trim()) {
+      message += `📝 <b>Note:</b>\n${bookingData.note}\n`;
+    }
+    
+    // Aggiungi informazioni speciali per eventi esclusivi
+    if (bookingData.evento === 'compleanno' || bookingData.evento === 'eventi') {
+      message += `\n🎉 <b>EVENTO SPECIALE</b> - Richiede attenzione immediata!\n`;
+      if (bookingData.stato === 'in_attesa') {
+        message += `⏳ <b>Stato:</b> In attesa di approvazione\n`;
+      }
+    }
+    
+    // Aggiungi informazioni su chi ha creato la prenotazione
+    if (bookingData.adminActionBy) {
+      message += `\n👨‍💼 <b>Creata da:</b> ${bookingData.adminActionBy}\n`;
+    }
+    
+    message += `\n📱 <b>Alert automatico</b> - Avviso giornaliero già inviato alle 7:00`;
+    
+    // Invia notifica urgente
+    sendTelegramNotification(message, 'same_day_alert');
+    
+    debugLog(`✅ Alert stesso giorno inviato per ${bookingData.id}`);
+    return true;
+    
+  } catch (error) {
+    debugLog(`❌ Errore invio alert stesso giorno: ${error.message}`);
+    return false;
+  }
+}
+
 // ✅ FUNZIONE DI ALTO LIVELLO: Gestisce la logica di business per notifiche urgenti
 function sendUrgentNotification(message, subject, type, options = {}) {
   // Invia sempre su Telegram a tutti gli admin configurati
@@ -63,7 +131,7 @@ function sendEmailNotification(to, subject, htmlBody, bcc) {
 // AGGIUNGI questa funzione per forzare il test delle notifiche:
 function testTelegramNotification() {
   try {
-    const testMessage = `🧪 TEST SISTEMA NOTIFICHE\n\nData/ora: ${new Date().toLocaleString('it-IT')}\nSistema Telegram: FUNZIONANTE\n\n📋 Tipi di notifiche attive:\n• 📅 Riepilogo giornaliero (ore 7:00)\n• ⏰ Promemoria eventi (ogni 30 min)\n• 📋 Nuove prenotazioni`;
+    const testMessage = `🧪 TEST SISTEMA NOTIFICHE\n\nData/ora: ${new Date().toLocaleString('it-IT')}\nSistema Telegram: FUNZIONANTE\n\n📋 Tipi di notifiche attive:\n• 📅 Riepilogo giornaliero (ore 7:00)\n• ⏰ Promemoria eventi (ogni 30 min)\n• 📋 Nuove prenotazioni\n• ⚡ Alert stesso giorno`;
     
     debugLog('🧪 Invio messaggio di test Telegram...');
     
@@ -269,12 +337,28 @@ function shouldSendTelegramNotification(bookingData) {
   debugLog(`🕐 Ora prenotazione: ${bookingData.ora}`);
   debugLog(`📝 Evento: ${bookingData.evento}`);
   
+  // ✅ NUOVA LOGICA: Controlla se è per oggi e se l'avviso giornaliero è già stato inviato
+  const todayString = today.toISOString().split('T')[0];
+  const bookingDateString = bookingData.data.split('T')[0];
+  const isSameDay = bookingDateString === todayString;
+  
+  if (isSameDay) {
+    // Se è per oggi, controlla se l'avviso giornaliero è già stato inviato
+    if (checkIfDailySummarySent(todayString)) {
+      debugLog(`⚡ ALERT STESSO GIORNO: Avviso giornaliero già inviato, invio alert speciale`);
+      // Invia alert speciale per stesso giorno
+      sendSameDayBookingAlert(bookingData);
+      return false; // Non inviare la notifica normale
+    } else {
+      debugLog(`📅 Avviso giornaliero non ancora inviato per oggi - notifica normale`);
+    }
+  }
+  
   // ✅ SEMPRE invia notifica per nuovi eventi (rimosso il controllo temporaneo)
   debugLog(`🔔 TELEGRAM: Nuova prenotazione - SEMPRE NOTIFICA`);
   return true;
   
   // Caso 2: Evento last minute (stesso giorno, poche ore prima)
-  const isSameDay = bookingDate.toDateString() === today.toDateString();
   const hoursUntilEvent = (bookingTime - now) / (1000 * 60 * 60);
   
   if (isSameDay && hoursUntilEvent <= 2 && hoursUntilEvent > 0) {
@@ -342,6 +426,54 @@ function clearDailySummaryCache() {
     
   } catch (error) {
     debugLog(`❌ Errore pulizia cache: ${error.message}`);
+    return {
+      status: 'error',
+      message: error.message
+    };
+  }
+}
+
+// ✅ NUOVA FUNZIONE: Test alert stesso giorno
+function testSameDayAlert() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    debugLog(`🧪 Test alert stesso giorno per: ${today}`);
+    
+    // Prima marca come se l'avviso giornaliero fosse già stato inviato
+    markDailySummarySent(today);
+    
+    // Crea dati di test per una prenotazione di oggi
+    const testBooking = {
+      id: 'ANSPI-TEST-001',
+      nome: 'Cliente Test',
+      email: 'test@example.com',
+      telefono: '123456789',
+      evento: 'calcetto',
+      campo: 'calcetto',
+      data: today,
+      ora: '15:00',
+      note: 'Test alert stesso giorno - Prenotazione di prova',
+      adminActionBy: 'test@admin.com'
+    };
+    
+    // Testa l'alert
+    const result = sendSameDayBookingAlert(testBooking);
+    
+    debugLog(`✅ Test alert stesso giorno completato: ${result}`);
+    
+    return {
+      status: 'ok',
+      data: {
+        date: today,
+        alertSent: result,
+        testBooking: testBooking
+      },
+      message: `Test alert stesso giorno per ${today}: ${result ? 'INVIATO' : 'NON INVIATO'}`
+    };
+    
+  } catch (error) {
+    debugLog(`❌ Errore test alert stesso giorno: ${error.message}`);
     return {
       status: 'error',
       message: error.message
