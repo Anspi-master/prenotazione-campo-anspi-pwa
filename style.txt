@@ -3688,10 +3688,5 @@ body.master-admin #admin-management-section {
         line-height: 1.2 !important;
     }
 }
-/* PWA overrides rimossi: mantenere il rendering nativo dell'app anche in iframe */
-// ... existing code ...
-</style>
-<style>
-/* ===== SOLO QUANDO APERTA IN PWA (pwa=1) ===== */
-</style>
+/* Rimozione riferimenti PWA: nessuna regola condizionale per PWA */
 

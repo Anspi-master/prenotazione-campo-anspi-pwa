@@ -95,19 +95,7 @@ function doGet(e) {
     case 'api':
       console.log('🌐 Gestendo richiesta API...');
       return handleApiRequest(e, 'GET');
-    case 'manifest':
-      console.log('📋 Servendo manifest PWA...');
-      return serveManifest();
-    case 'sw':
-      console.log('🔧 Servendo Service Worker PWA...');
-      return serveServiceWorker();
-    case 'asset':
-      console.log('🖼️ Servendo asset PWA...');
-      var name = (e.parameter && e.parameter.name) ? String(e.parameter.name) : '';
-      return serveAsset(name);
-      
 
-      
     default:
       console.log('🏠 Route default - controllando reset password...');
       // ✅ CONTROLLO PER RESET PASSWORD (compatibilità)
@@ -141,6 +129,16 @@ function handleApiRequest(e, method) {
     const action = e.parameter.action;
     const data = method === 'POST' && e.postData ? JSON.parse(e.postData.contents) : e.parameter;
     const result = serverRequest(action, data);
+    
+    // JSONP support per richieste cross-origin (Vercel/Netlify)
+    const callback = e && e.parameter && e.parameter.callback ? String(e.parameter.callback) : '';
+    if (callback) {
+      const safeCb = callback.replace(/[^\w$\.]/g, '');
+      const body = `${safeCb}(${JSON.stringify(result)});`;
+      return ContentService
+        .createTextOutput(body)
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
     
     return ContentService
       .createTextOutput(JSON.stringify(result))
@@ -1076,87 +1074,4 @@ function testHTTPRequests() {
   }
 }
 
-// =====================
-// PWA - Manifest e Service Worker ora gestiti inline nell'HTML
-// =====================
-
-
-
-
-// ✅ Manifest PWA servito via ContentService per consentire installazione
-function serveManifest() {
-  try {
-    var baseUrl = ScriptApp.getService().getUrl();
-    var manifest = {
-      name: 'Campo Don Michele FIORE - ANSPI',
-      short_name: 'Campo ANSPI',
-      description: 'Sistema di prenotazioni per il Campo Don Michele FIORE - ANSPI Giovinazzo',
-      start_url: './',
-      display: 'standalone',
-      background_color: '#74b9ff',
-      theme_color: '#74b9ff',
-      orientation: 'portrait-primary',
-      scope: './',
-      lang: 'it',
-      dir: 'ltr',
-      categories: ['sports', 'business', 'lifestyle'],
-      icons: [
-        { src: baseUrl + '?page=asset&name=icon-192.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
-        { src: baseUrl + '?page=asset&name=icon-512.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'any' },
-        { src: baseUrl + '?page=asset&name=icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-        { src: baseUrl + '?page=asset&name=icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' }
-      ]
-    };
-    return ContentService.createTextOutput(JSON.stringify(manifest))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (error) {
-    console.error('❌ Errore serveManifest:', error);
-    return ContentService.createTextOutput('{}')
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-// ✅ Service Worker PWA servito via ContentService
-function serveServiceWorker() {
-  try {
-    var sw = [
-      "const CACHE_NAME = 'campo-anspi-v3.1';",
-      "const ASSETS = [ './' ];",
-      "self.addEventListener('install', event => {",
-      "  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));",
-      "});",
-      "self.addEventListener('activate', event => {",
-      "  event.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => k !== CACHE_NAME && caches.delete(k)))).then(() => self.clients.claim()));",
-      "});",
-      "self.addEventListener('fetch', event => {",
-      "  event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));",
-      "});"
-    ].join('\n');
-    return ContentService.createTextOutput(sw)
-      .setMimeType(ContentService.MimeType.JAVASCRIPT);
-  } catch (error) {
-    console.error('❌ Errore serveServiceWorker:', error);
-    return ContentService.createTextOutput('')
-      .setMimeType(ContentService.MimeType.JAVASCRIPT);
-  }
-}
-
-// ✅ Servizio asset icone dalla cartella assets
-function serveAsset(name) {
-  try {
-    if (!name) return ContentService.createTextOutput('').setMimeType(ContentService.MimeType.TEXT);
-    var fileMap = {
-      'icon-192.svg': HtmlService.createHtmlOutputFromFile('assets/icon-192').getContent(),
-      'icon-512.svg': HtmlService.createHtmlOutputFromFile('assets/icon-512').getContent(),
-      'icon-192.png': HtmlService.createHtmlOutputFromFile('assets/icon-192.png').getContent(),
-      'icon-512.png': HtmlService.createHtmlOutputFromFile('assets/icon-512.png').getContent(),
-    };
-    var content = fileMap[name];
-    if (!content) return ContentService.createTextOutput('').setMimeType(ContentService.MimeType.TEXT);
-    var mime = name.endsWith('.png') ? ContentService.MimeType.PNG : ContentService.MimeType.SVG;
-    return ContentService.createTextOutput(content).setMimeType(mime);
-  } catch (error) {
-    console.error('❌ Errore serveAsset:', error);
-    return ContentService.createTextOutput('').setMimeType(ContentService.MimeType.TEXT);
-  }
-}
+// (Rimossi: funzioni e router PWA)
