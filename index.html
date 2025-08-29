@@ -8,23 +8,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Campo ANSPI">
   <meta name="application-name" content="Campo ANSPI">
-  <script>
-    (function(){
-      var p=new URLSearchParams(location.search||'');
-      if(p.get('pwa')==='1'){ document.documentElement.setAttribute('data-pwa','true');
-        document.addEventListener('DOMContentLoaded',function(){
-          document.body&&document.body.setAttribute('data-pwa','true');
-        });
-      }
-    })();
-    </script>
 
   <title>Campo ANSPI - PWA</title>
 
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/Anspi-master/prenotazione-campo-anspi-pwa/main/assets/icon-192.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="https://raw.githubusercontent.com/Anspi-master/prenotazione-campo-anspi-pwa/main/assets/icon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="https://raw.githubusercontent.com/Anspi-master/prenotazione-campo-anspi-pwa/main/assets/icon-512.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
 
   <style>
     html, body {
@@ -43,7 +33,7 @@
   <iframe
     class="app-frame"
     id="appFrame"
-    src="https://script.google.com/macros/s/AKfycbzj0QJ8mKrDZk1wZUpNiHXzNSPvWstuUjZQcUKJvn28_tlGUlZgPjtS8aVnCUT_kUgN/exec?pwa=1&v="
+    src="https://script.google.com/macros/s/AKfycbzj0QJ8mKrDZk1wZUpNiHXzNSPvWstuUjZQcUKJvn28_tlGUlZgPjtS8aVnCUT_kUgN/exec?v=3"
     title="Campo ANSPI"
     allow="fullscreen; clipboard-read; clipboard-write">
   </iframe>
@@ -52,7 +42,7 @@
     // SW minimale, nessun overlay UI
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('./service-worker.js?ver=2').catch(()=>{});
+        navigator.serviceWorker.register('./service-worker.js?ver=3').catch(()=>{});
       });
     }
   </script>

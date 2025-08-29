@@ -1,5 +1,5 @@
 // SW minimal per GitHub Pages shell PWA
-const CACHE_NAME = 'campo-anspi-shell-v2';
+const CACHE_NAME = 'campo-anspi-shell-v3';
 const ASSETS = [
   './',
   './index.html',
