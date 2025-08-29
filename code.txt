@@ -45,7 +45,6 @@ const TELEGRAM_CHAT_IDS = [
 ];
 const TELEGRAM_MASTER_CHAT_ID = '686525181';
 
-
 // =====================
 // ROUTER PRINCIPALE - VERSIONE MIGLIORATA
 // =====================
@@ -93,7 +92,9 @@ function doGet(e) {
     case 'api':
       console.log('🌐 Gestendo richiesta API...');
       return handleApiRequest(e, 'GET');
+      
 
+      
     default:
       console.log('🏠 Route default - controllando reset password...');
       // ✅ CONTROLLO PER RESET PASSWORD (compatibilità)
@@ -128,16 +129,6 @@ function handleApiRequest(e, method) {
     const data = method === 'POST' && e.postData ? JSON.parse(e.postData.contents) : e.parameter;
     const result = serverRequest(action, data);
     
-    // JSONP support per richieste cross-origin (Vercel/Netlify)
-    const callback = e && e.parameter && e.parameter.callback ? String(e.parameter.callback) : '';
-    if (callback) {
-      const safeCb = callback.replace(/[^\w$\.]/g, '');
-      const body = `${safeCb}(${JSON.stringify(result)});`;
-      return ContentService
-        .createTextOutput(body)
-        .setMimeType(ContentService.MimeType.JAVASCRIPT);
-    }
-    
     return ContentService
       .createTextOutput(JSON.stringify(result))
       .setMimeType(ContentService.MimeType.JSON);
@@ -148,6 +139,14 @@ function handleApiRequest(e, method) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
+
+
+
+
+
+
+
+
 
 // ✅ Funzione include (se non ce l'hai già)
 function include(filename) {
@@ -164,6 +163,7 @@ function onOpen() {
   var ui = SpreadsheetApp.getUi();
   ui.createMenu('Gestione Campo')
     .addItem('Test Notifica Telegram', 'testTelegramNotification')
+    .addItem('Test Alert Stesso Giorno', 'testSameDayAlert')
     .addItem('Invia Riepilogo Giornaliero', 'sendDailySummaryToAdmin')
     .addItem('Pulisci Cache Riepilogo', 'clearDailySummaryCache')
     .addItem('Setup Notifiche/Trigger', 'setupEventNotifications')
@@ -202,6 +202,7 @@ if (new Date().getTime() - startTime > MAX_EXECUTION_TIME) {
       case 'getBookingsForCalendar': return { status: 'ok', data: { bookings: getBookingsForCalendar() } };
       case 'manualArchive': return archiveOldBookings();
       case 'testTelegramNotification': return testTelegramNotification();
+      case 'testSameDayAlert': return testSameDayAlert();
       case 'sendDailySummaryToAdmin': return sendDailySummaryToAdmin();
       case 'createBooking': return createBooking(data);
       case 'cancelBooking': return cancelBooking(data.bookingId);
@@ -239,7 +240,7 @@ if (new Date().getTime() - startTime > MAX_EXECUTION_TIME) {
       case 'getCacheStatus': return getCacheStatus();
       
 
-      // (Manifest/Service Worker rimossi)
+      // Manifest e Service Worker ora gestiti inline nell'HTML
       case 'testSheetConnection': 
   try {
     return testSheetConnection();
@@ -853,175 +854,4 @@ function servePasswordResetPage(token) {
   return output;
 }
 
-// ✅ Test diretto del router e delle funzioni PWA
-function testPWADirectly() {
-  console.log('🧪 Test diretto PWA...');
-  
-  try {
-    // Test: Simulazione doGet
-    console.log('🧪 Testando simulazione doGet...');
-    
-    console.log('✅ Tutti i test completati con successo!');
-    
-  } catch (error) {
-    console.error('❌ Errore durante il test:', error);
-  }
-}
-
-// ✅ Test completo del sistema PWA
-function testCompletePWA() {
-  console.log('🧪 === TEST COMPLETO SISTEMA PWA ===');
-  
-  try {
-    // Test 1: Verifica funzioni dirette
-    console.log('📋 Test 1: Verifica funzioni dirette...');
-    const resetResult = servePasswordResetPage('test-token');
-    console.log('✅ Reset Page:', resetResult.getContent().substring(0, 50) + '...');
-    
-    // Test 2: Verifica router
-    console.log('🛣️ Test 2: Verifica router...');
-    
-    // Simula doGet con parametri
-    const testCases = [
-      { params: { page: 'api' }, expected: 'api' },
-      { params: { resetToken: 'test' }, expected: 'reset' },
-      { params: {}, expected: 'app' }
-    ];
-    
-    testCases.forEach((testCase, index) => {
-      console.log(`🧪 Test case ${index + 1}:`, testCase.params);
-      
-      // Simula la logica del router
-      let route = 'app';
-      if (testCase.params.page) {
-        route = testCase.params.page;
-      } else if (testCase.params.resetToken) {
-        route = 'reset';
-      } else if (testCase.params.sw === 'true') {
-        route = 'sw-fallback';
-      }
-      
-      const success = route === testCase.expected;
-      console.log(`   ${success ? '✅' : '❌'} Route: ${route} (expected: ${testCase.expected})`);
-    });
-    
-    // Test 3: Verifica URL
-    console.log('🔗 Test 3: Verifica URL...');
-    const scriptUrl = ScriptApp.getService().getUrl();
-    console.log('✅ Script URL:', scriptUrl);
-    
-    console.log('✅ === TEST COMPLETO PWA SUPERATO ===');
-    return {
-      status: 'ok',
-      message: 'Test completati',
-      resetPage: 'HTML generato',
-      scriptUrl: scriptUrl
-    };
-    
-  } catch (error) {
-    console.error('❌ Errore test PWA:', error);
-    return {
-      status: 'error',
-      message: 'Errore test PWA: ' + error.message
-    };
-  }
-}
-
-// ✅ Test simulazione richieste HTTP reali
-function testHTTPRequests() {
-  console.log('🧪 === TEST RICHIESTE HTTP REALI ===');
-  
-  try {
-    // Simula le richieste HTTP che il browser fa
-    const testCases = [
-      {
-        name: 'Main App Request (HTML)',
-        params: {},
-        expectedMime: 'text/html',
-        expectedContent: 'html',
-        isHtmlService: true
-      },
-      {
-        name: 'API Request (JSON)',
-        params: { page: 'api' },
-        expectedMime: ContentService.MimeType.JSON,
-        expectedContent: 'pong'
-      },
-      {
-        name: 'Main App Request',
-        params: {},
-        expectedMime: 'text/html',
-        expectedContent: 'html',
-        isHtmlService: true
-      },
-      {
-        name: 'API Ping JSONP (callback)',
-        params: { page: 'api', action: 'ping', callback: 'cb' },
-        expectedMime: ContentService.MimeType.JAVASCRIPT,
-        expectedContent: 'cb('
-      }
-    ];
-    
-    let allTestsPassed = true;
-    
-    testCases.forEach((testCase, index) => {
-      console.log(`\n🧪 Test ${index + 1}: ${testCase.name}`);
-      console.log(`📋 Parametri:`, testCase.params);
-      
-      try {
-        // Simula la chiamata doGet
-        const mockEvent = { parameter: testCase.params };
-        const result = doGet(mockEvent);
-        
-        // Verifica MIME type (gestisce HtmlService diversamente)
-        let actualMime = 'unknown';
-        let mimeMatch = false;
-        
-        if (testCase.isHtmlService) {
-          // Per HtmlService, verifichiamo solo il contenuto
-          actualMime = 'text/html (HtmlService)';
-          mimeMatch = true; // HtmlService restituisce sempre HTML
-        } else {
-          actualMime = result.getMimeType();
-          mimeMatch = actualMime === testCase.expectedMime;
-        }
-        
-        // Verifica contenuto
-        const content = result.getContent();
-        const contentMatch = content.toLowerCase().includes(testCase.expectedContent.toLowerCase());
-        
-        console.log(`📋 MIME Type: ${actualMime} (expected: ${testCase.expectedMime}) ${mimeMatch ? '✅' : '❌'}`);
-        console.log(`📋 Content check: ${contentMatch ? '✅' : '❌'} (contains: ${testCase.expectedContent})`);
-        console.log(`📋 Content preview: ${content.substring(0, 100)}...`);
-        
-        if (!mimeMatch || !contentMatch) {
-          allTestsPassed = false;
-          console.log(`❌ Test ${index + 1} FAILED`);
-        } else {
-          console.log(`✅ Test ${index + 1} PASSED`);
-        }
-        
-      } catch (error) {
-        console.log(`❌ Test ${index + 1} ERROR:`, error.message);
-        allTestsPassed = false;
-      }
-    });
-    
-    console.log(`\n🎯 RISULTATO FINALE: ${allTestsPassed ? '✅ TUTTI I TEST SUPERATI' : '❌ ALCUNI TEST FALLITI'}`);
-    
-    return {
-      status: allTestsPassed ? 'ok' : 'error',
-      message: allTestsPassed ? 'Tutte le richieste HTTP funzionano correttamente' : 'Alcune richieste HTTP hanno problemi',
-      allTestsPassed: allTestsPassed
-    };
-    
-  } catch (error) {
-    console.error('❌ Errore test HTTP:', error);
-    return {
-      status: 'error',
-      message: 'Errore test HTTP: ' + error.message
-    };
-  }
-}
-
-// (Rimossi: funzioni e router PWA)
+// (Rimossi: test PWA e riferimenti a manifest/service worker)

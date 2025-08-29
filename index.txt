@@ -131,48 +131,9 @@
                         );
                     });
 
-                    // Attivazione del Service Worker
-                    self.addEventListener('activate', event => {
-                        console.log('🚀 Service Worker attivazione iniziata');
-                        event.waitUntil(
-                            caches.keys()
-                                .then(cacheNames => {
-                                    return Promise.all(
-                                        cacheNames.map(cacheName => {
-                                            if (cacheName !== CACHE_NAME) {
-                                                console.log('🗑️ Eliminando cache vecchia:', cacheName);
-                                                return caches.delete(cacheName);
-                                            }
-                                        })
-                                    );
-                                })
-                                .then(() => {
-                                    console.log('✅ Service Worker attivato');
-                                    return self.clients.claim();
-                                })
-                        );
-                    });
+                    
 
-                    // Intercettazione delle richieste - strategia semplice
-                    self.addEventListener('fetch', event => {
-                        event.respondWith(
-                            fetch(event.request)
-                                .catch(() => {
-                                    return caches.match(event.request);
-                                })
-                        );
-                    });
-
-                    console.log('🔧 Service Worker semplificato caricato');
                 `;
-                
-                // Crea blob e registra Service Worker
-                const swBlob = new Blob([swContent], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(swBlob);
-                
-                navigator.serviceWorker.register(swUrl)
-                    .then(function(registration) { console.log('✅ SW registered: ', registration); })
-                    .catch(function(registrationError) { console.log('❌ SW registration failed: ', registrationError); });
             });
         }
     </script>
